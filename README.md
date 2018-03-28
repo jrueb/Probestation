@@ -6,8 +6,18 @@ Currently works with:
 * Keithley 6485
 * Agilent E4980A
 
+## Start
+To start the program simply run the gui.py by executing
+```
+python3.4 gui.py
+```
+or depending on your python installation
+```
+python gui.py
+```
+
 ## Software dependencies:
-* python 3.6 or newer
+* python 3.4 or newer
 * [pyvisa](https://github.com/pyvisa/pyvisa) together with a backend like NI-VISA
 * PyQt5
 * [numpy](http://www.numpy.org/)
