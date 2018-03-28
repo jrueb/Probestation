@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 
+from measurement_window import MeasurementThread, MeasurementWindow
+import keithley
+
 from PyQt5 import QtCore
 import os
 import csv
 import datetime
-from pyvisa.errors import VisaIOError
-import keithley
+from pyvisa.errors import VisaIOError, InvalidBinaryFormat
 from time import sleep
-import numpy as np
-
-from measurement_window import MeasurementThread, MeasurementWindow
 
 def getDateTimeFilename():
     s = datetime.datetime.now().isoformat()
@@ -24,6 +23,9 @@ class IvMeasurementThread(MeasurementThread):
     def run(self):
         args = self.args
         
+        fname = getDateTimeFilename()
+        output_csv = os.path.join(args.output_dir, fname + ".csv")
+        
         try:
             keith6517B = keithley.Keithley6517B(args.devname_kei6517b)
             print("Voltage source device introduced itself as {}".format(keith6517B.identify()))
@@ -33,10 +35,14 @@ class IvMeasurementThread(MeasurementThread):
             else:
                 keith6485 = None
                 print("Running without guardring measurement")
-            
-            fname = getDateTimeFilename()
-            output_csv = os.path.join(args.output_dir, fname + ".csv")
-            
+        except VisaIOError:
+            errormsg = "Could not open devices."
+            self.error_signal.emit(errormsg)
+            print(errormsg)
+            self.finished.emit(os.path.join(args.output_dir, fname))
+            return
+        
+        try:
             print("Starting measurement")
             
             with open(output_csv, "w", newline="") as f:
@@ -98,7 +104,7 @@ class IvMeasurementThread(MeasurementThread):
             errormsg = "Error: {}".format(e)
             self.error_signal.emit(errormsg)
             print(errormsg)
-        except VisaIOError:
+        except (VisaIOError, InvalidBinaryFormat, ValueError):
             errormsg = "Error during communication with devices."
             self.error_signal.emit(errormsg)
             print(errormsg)
@@ -106,7 +112,7 @@ class IvMeasurementThread(MeasurementThread):
             print("Stopping measurement")
             try:
                 keith6517B.stop_measurement()
-            except VisaIOError:
+            except (VisaIOError, InvalidBinaryFormat, ValueError):
                 print("Error during stopping. Trying turn off output")
                 keith6517B.set_output_state(False)
             

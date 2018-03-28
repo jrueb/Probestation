@@ -8,9 +8,8 @@ from PyQt5 import QtCore
 import os
 import csv
 import datetime
-import numpy as np
 from time import sleep
-from pyvisa.errors import VisaIOError
+from pyvisa.errors import VisaIOError, InvalidBinaryFormat
 
 def getDateTimeFilename():
     s = datetime.datetime.now().isoformat()
@@ -25,15 +24,22 @@ class CvMeasurementThread(MeasurementThread):
     def run(self):
         args = self.args
         
+        fname = getDateTimeFilename()
+        output_csv = os.path.join(args.output_dir, fname + ".csv")
+        
         try:
             keith6517B = keithley.Keithley6517B(args.devname_kei6517b)
             print("Voltage source device introduced itself as {}".format(keith6517B.identify()))
             agilentE4980A = agilent.AgilentE4980A(args.devname_agiE4980A)
             print("LCR meter introduced itself as {}".format(agilentE4980A.identify()))
+        except VisaIOError:
+            errormsg = "Could not open devices."
+            self.error_signal.emit(errormsg)
+            print(errormsg)
+            self.finished.emit(os.path.join(args.output_dir, fname))
+            return
             
-            fname = getDateTimeFilename()
-            output_csv = os.path.join(args.output_dir, fname + ".csv")
-            
+        try:
             print("Starting measurement")
             
             agilentE4980A.set_frequency(args.frequency)
@@ -75,7 +81,7 @@ class CvMeasurementThread(MeasurementThread):
             errormsg = "Error: {}".format(e)
             self.error_signal.emit(errormsg)
             print(errormsg)
-        except VisaIOError:
+        except (VisaIOError, InvalidBinaryFormat, ValueError):
             errormsg = "Error during communication with devices."
             self.error_signal.emit(errormsg)
             print(errormsg)
@@ -83,7 +89,7 @@ class CvMeasurementThread(MeasurementThread):
             print("Stopping measurement")
             try:
                 keith6517B.stop_measurement()
-            except VisaIOError:
+            except (VisaIOError, InvalidBinaryFormat, ValueError):
                 print("Error during stopping. Trying turn off output")
                 keith6517B.set_output_state(False)
             
