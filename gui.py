@@ -34,7 +34,7 @@ class VoltsrcGroupWidget(QtW.QGroupBox):
         self._end_spin = createSpin(-1000, 1000, 0.01, -1, 2, " V",
             "Source voltage to end with")
         self._step_spin = createSpin(0, 1000, 0.01, 0.1, 2, " V",
-            "Souce voltage difference between taking measurements")
+            "Source voltage difference between taking measurements")
         
         form.addRow("Start voltage", self._start_spin)
         form.addRow("End voltage", self._end_spin)
@@ -123,7 +123,7 @@ class IvTab(QtW.QWidget):
         compliance_label = QtW.QLabel("Abs compliance current: ")
         hbox.addWidget(compliance_label)
         self._compliance_spin = createSpin(0.1, 1000, 1, 10, 1, " µA",
-            "When the compliance current is reached by one of the measurent currents, the voltage source is immediately turned off.")
+            "When the compliance current is reached by one of the measured currents, the voltage source is immediately turned off.")
         hbox.addWidget(self._compliance_spin)
         
         hbox = QtW.QHBoxLayout()
@@ -133,7 +133,7 @@ class IvTab(QtW.QWidget):
         
         hbox = QtW.QHBoxLayout()
         vbox.addLayout(hbox)
-        hbox.addWidget(QtW.QLabel("Wait time "))
+        hbox.addWidget(QtW.QLabel("Wait time"))
         self._sleep_spin = createSpin(0, 100, 1, 1, 1, " s", 
             "Time to wait between setting the source voltage and taking the measurement")
         hbox.addWidget(self._sleep_spin)
@@ -147,7 +147,7 @@ class IvTab(QtW.QWidget):
         hbox.addStretch(1)
         vbox.addLayout(hbox)
         self._start_button = QtW.QPushButton("Start")
-        self._start_button.setToolTip("Start the measurement.")
+        self._start_button.setToolTip("Start the measurement")
         self._start_button.resize(self._start_button.sizeHint())
         self._start_button.clicked.connect(self._onStartClicked)
         hbox.addWidget(self._start_button)
@@ -174,7 +174,7 @@ class IvTab(QtW.QWidget):
             
         sleeptime = self._sleep_spin.value()
         if not 0 <= sleeptime:
-            self._parent_win.showErrorDialog("Invalid sleep time")
+            self._parent_win.showErrorDialog("Invalid sleep time.")
             return
             
         output_dir = self._browse_layout.getOutputDir()
@@ -249,7 +249,7 @@ class CvTab(QtW.QWidget):
         hbox.addStretch(1)
         vbox.addLayout(hbox)
         self._start_button = QtW.QPushButton("Start")
-        self._start_button.setToolTip("Start the measurement.")
+        self._start_button.setToolTip("Start the measurement")
         self._start_button.resize(self._start_button.sizeHint())
         self._start_button.clicked.connect(self._onStartClicked)
         hbox.addWidget(self._start_button)
@@ -269,12 +269,12 @@ class CvTab(QtW.QWidget):
             self._parent_win.showErrorDialog("Frequency must be between 20 Hz and 2 MHz.")
             return
         if not 0 <= volt <= 20:
-            self._parent_win.showErrorDialog("Frequency voltage needs to be between 0 and 20 V.")
+            self._parent_win.showErrorDialog("Frequency voltage must to be between 0 and 20 V.")
             return
             
         sleeptime = self._sleep_spin.value()
         if not 0 <= sleeptime:
-            self._parent_win.showErrorDialog("Invalid sleep time")
+            self._parent_win.showErrorDialog("Invalid sleep time.")
             return
             
         output_dir = self._browse_layout.getOutputDir()
@@ -346,7 +346,7 @@ class MainWindow(QtW.QMainWindow):
         self._mwin.start()
             
     def showErrorDialog(self, message):
-        reply = QtW.QMessageBox.critical(self, "Message",
+        reply = QtW.QMessageBox.critical(self, "Error",
             message, QtW.QMessageBox.Ok, QtW.QMessageBox.Ok)
         
         

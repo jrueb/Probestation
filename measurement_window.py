@@ -144,5 +144,5 @@ class MeasurementWindow(QtW.QWidget):
         event.accept()
         
     def showErrorDialog(self, message):
-        reply = QtW.QMessageBox.critical(self, "Message",
+        reply = QtW.QMessageBox.critical(self, "Error",
             message, QtW.QMessageBox.Ok, QtW.QMessageBox.Ok)
