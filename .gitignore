@@ -1,4 +1,7 @@
+__pycache__
 *.aux
+*.csv
 *.log
 *.out
+*.svg
 *.toc

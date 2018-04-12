@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 
 import visa
+from sys import platform
 
 class AgilentMeter(object):
     def __init__(self, resource_name):
-        rm = visa.ResourceManager()
+        if platform == "linux" or platform == "linux2" or platform == "darwin":
+            rm = visa.ResourceManager('@py')
+        elif platform == "win32" or platform == "cygwin":
+            rm = visa.ResourceManager()
         resources = rm.list_resources()
         if not resource_name in resources:
             self._connected = False

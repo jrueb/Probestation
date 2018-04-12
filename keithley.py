@@ -3,15 +3,22 @@
 import visa
 import time
 import numpy as np
+from sys import platform
 
 class KeithleyMeter(object):
     def __init__(self, resource_name):
-        rm = visa.ResourceManager()
+        if platform == "linux" or platform == "linux2" or platform == "darwin":
+            rm = visa.ResourceManager('@py')
+        elif platform == "win32" or platform == "cygwin":
+            rm = visa.ResourceManager()
         resources = rm.list_resources()
         if not resource_name in resources:
             self._connected = False
             raise ValueError("Resource not found {}".format(resource_name))
-        self._res = rm.open_resource(resource_name)
+        if resource_name.startswith("ASRL/dev/tty"):
+            self._res = rm.open_resource(resource_name, baud_rate=19200, data_bits=8)
+        else:
+            self._res = rm.open_resource(resource_name)
         self._connected = True
 
         self._write("*RST")
