@@ -17,6 +17,8 @@ This should start the software.
 
 # Installation on other PCs
 
+The software has been tested to run on Ubuntu 18.04, CERN CentOS 7 and Microsoft Windows 7.
+
 ## Ubuntu 18.04
 
 On Ubuntu 18.04 you first have to install git and pip for python 3
@@ -92,3 +94,22 @@ to be updated:
 * PyQt5
 * [numpy](http://www.numpy.org/)
 * [matplotlib](https://matplotlib.org/) 2.2 or newer
+
+# Recompiling the User Manual
+
+To recompile the user manual, you need a working latex installation with some additional packages.
+
+## Ubuntu 18.04
+
+On Ubuntu 18.04 you need to install several latex packages via
+```
+sudo apt-get install texlive-latex-base texlive-science texlive-latex-extra
+```
+You can then build the documentation with the command
+```
+cd doc && pdflatex manual.tex
+```
+
+## CERN CentOS 7
+
+to be updated:
