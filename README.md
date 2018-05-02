@@ -16,19 +16,80 @@ D:\Probestation
 
 This should start the software.
 
-## Software Dependencies
+## Installation
+
+### Ubuntu 18.04
+
+On Ubuntu 18.04 you first have to install git and pip for python 3:
+```
+sudo apt-get install git python3-pip
+```
+Then upgrade pip to the latest version:
+```
+sudo pip3 install --upgrade pip
+```
+You can then install the required python packages:
+```
+sudo pip3 install pyvisa pyvisa-py numpy matplotlib pyserial pyqt5
+```
+For a serial connection, your user account has to be added to the dialout group:
+```
+sudo usermod -a -G dialout $USER
+```
+Then download the repository with:
+```
+git clone https://github.com/thomaseichhorn/probestation.git /where/you/want/to/install
+```
+After logging off and logging in again to refresh the user permissions, you should be able to run the software from the directory you specified before with the command:
+```
+python3 gui.py
+```
+
+### CERN CentOS 7
+
+On CERN CentOS 7, you also first have to install git and python 3. Open a root terminal and run:
+```
+yum install centos-release-scl
+```
+to enable software collections and then run
+```
+yum install rh-python35 git
+```
+Then you can load the python 3.5 environment:
+```
+source /opt/rh/rh-python35/enable
+```
+Then upgrade pip to the latest version:
+```
+pip3 install --upgrade pip
+```
+You can then install the required python packages:
+```
+pip3 install pyvisa pyvisa-py numpy matplotlib pyserial pyqt5
+```
+For a serial connection, your user account has to be added to the dialout group:
+```
+usermod -a -G dialout <yourusername>
+```
+You can now close the root terminal. Then download the repository with:
+```
+git clone https://github.com/thomaseichhorn/probestation.git /where/you/want/to/install
+```
+After logging off and logging in again to refresh the user permissions, load the python 3.5 environment again:
+```
+source /opt/rh/rh-python35/enable
+```
+You should be able to run the software from the directory you specified before with the command:
+```
+python3 gui.py
+```
+
+### Microsoft Windows
+
+to be updated:
+
 * python 3.4 or newer
 * [pyvisa](https://github.com/pyvisa/pyvisa) together with a backend like NI-VISA
 * PyQt5
 * [numpy](http://www.numpy.org/)
 * [matplotlib](https://matplotlib.org/) 2.2 or newer
-
-## Start
-To start the program simply run the gui.py by executing
-```
-python3.4 gui.py
-```
-or depending on your python installation
-```
-python gui.py
-```
