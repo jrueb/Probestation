@@ -550,6 +550,106 @@ Then switch off the chiller control unit and then the chiller via the large red 
 After verifying that there is no voltage output, you can open the cold box and, using the microscope, detach the probe needles.
 Then switch the vacuum off and carefully remove your DUT before closing the cold box.\\
 
+\subsection{Installing the Software}
+\label{sec:installation}
+
+The software has been tested to run on Ubuntu 18.04, CERN CentOS 7 and Microsoft Windows 7.
+It is already preinstalled on {\tt fhlprobest.desy.de}.
+
+\subsubsection{Ubuntu 18.04}
+
+On Ubuntu 18.04 you first have to install git and pip for python 3
+
+\begin{lstlisting}
+sudo apt-get install git python3-pip
+\end{lstlisting}
+
+Then upgrade pip to the latest version
+
+\begin{lstlisting}
+sudo pip3 install --upgrade pip
+\end{lstlisting}
+
+You can then install the required python packages
+
+\begin{lstlisting}
+sudo pip3 install pyvisa pyvisa-py numpy matplotlib pyserial pyqt5
+\end{lstlisting}
+
+For a serial connection, your user account has to be added to the dialout group
+
+\begin{lstlisting}
+sudo usermod -a -G dialout $USER
+\end{lstlisting}
+
+Then download the repository with
+
+\begin{lstlisting}
+git clone https://github.com/thomaseichhorn/probestation.git /where/you/want/to/install
+\end{lstlisting}
+
+After logging off and logging in again to refresh the user permissions, you should be able to run the software from the directory you specified before with the command
+
+\begin{lstlisting}
+python3 gui.py
+\end{lstlisting}
+
+\subsubsection{CERN CentOS 7}
+
+On CERN CentOS 7 you also first have to install git and python 3. Open a root terminal and run
+
+\begin{lstlisting}
+yum install centos-release-scl
+\end{lstlisting}
+
+to enable software collections and then run:
+
+\begin{lstlisting}
+yum install rh-python35 git
+\end{lstlisting}
+
+Then you can load the python 3.5 environment
+
+\begin{lstlisting}
+source /opt/rh/rh-python35/enable
+\end{lstlisting}
+
+and upgrade pip to the latest version
+
+\begin{lstlisting}
+pip3 install --upgrade pip
+\end{lstlisting}
+
+You can then install the required python packages
+
+\begin{lstlisting}
+pip3 install pyvisa pyvisa-py numpy matplotlib pyserial pyqt5
+\end{lstlisting}
+
+For a serial connection, your user account has to be added to the dialout group
+
+\begin{lstlisting}
+usermod -a -G dialout <yourusername>
+\end{lstlisting}
+
+You can now close the root terminal. Then download the repository with
+
+\begin{lstlisting}
+git clone https://github.com/thomaseichhorn/probestation.git /where/you/want/to/install
+\end{lstlisting}
+
+After logging off and logging in again to refresh the user permissions, load the python 3.5 environment again
+
+\begin{lstlisting}
+source /opt/rh/rh-python35/enable
+\end{lstlisting}
+
+You should be able to run the software from the directory you specified before with the command
+
+\begin{lstlisting}
+python3 gui.py
+\end{lstlisting}
+
 \newpage
 \begin{thebibliography}{}
 
