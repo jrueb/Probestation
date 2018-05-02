@@ -1,90 +1,89 @@
-# Probe Station
-Probe Station Manual and Software
+# Probe Station Manual and Software
 
 Refer to docs/manual.pdf for detailed instructions.
 
+# DESY FH E-Lab Probe Station PC
 
-## DESY FH E-Lab Probe Station PC
 To run the probe station software, click on the Probestation link.
 This executes the command:
-
+```
 C:\Programfiles\Anaconda3\python.exe gui.py D:\Measurements
-
+```
 running in the folder:
-
+```
 D:\Probestation
-
+```
 This should start the software.
 
-## Installation
+# Installation on other PCs
 
-### Ubuntu 18.04
+## Ubuntu 18.04
 
-On Ubuntu 18.04 you first have to install git and pip for python 3:
+On Ubuntu 18.04 you first have to install git and pip for python 3
 ```
 sudo apt-get install git python3-pip
 ```
-Then upgrade pip to the latest version:
+Then upgrade pip to the latest version
 ```
 sudo pip3 install --upgrade pip
 ```
-You can then install the required python packages:
+You can then install the required python packages
 ```
 sudo pip3 install pyvisa pyvisa-py numpy matplotlib pyserial pyqt5
 ```
-For a serial connection, your user account has to be added to the dialout group:
+For a serial connection, your user account has to be added to the dialout group
 ```
 sudo usermod -a -G dialout $USER
 ```
-Then download the repository with:
+Then download the repository with
 ```
 git clone https://github.com/thomaseichhorn/probestation.git /where/you/want/to/install
 ```
-After logging off and logging in again to refresh the user permissions, you should be able to run the software from the directory you specified before with the command:
+After logging off and logging in again to refresh the user permissions, you should be able to run the software from the directory you specified before with the command
 ```
 python3 gui.py
 ```
 
-### CERN CentOS 7
+## CERN CentOS 7
 
-On CERN CentOS 7, you also first have to install git and python 3. Open a root terminal and run:
+On CERN CentOS 7 you also first have to install git and python 3. Open a root terminal and run
 ```
 yum install centos-release-scl
 ```
-to enable software collections and then run
+to enable software collections and then run:
 ```
 yum install rh-python35 git
 ```
-Then you can load the python 3.5 environment:
+Then you can load the python 3.5 environment
 ```
 source /opt/rh/rh-python35/enable
 ```
-Then upgrade pip to the latest version:
+and upgrade pip to the latest version
 ```
 pip3 install --upgrade pip
 ```
-You can then install the required python packages:
+You can then install the required python packages
 ```
 pip3 install pyvisa pyvisa-py numpy matplotlib pyserial pyqt5
 ```
-For a serial connection, your user account has to be added to the dialout group:
+For a serial connection, your user account has to be added to the dialout group
 ```
 usermod -a -G dialout <yourusername>
 ```
-You can now close the root terminal. Then download the repository with:
+You can now close the root terminal. Then download the repository with
 ```
 git clone https://github.com/thomaseichhorn/probestation.git /where/you/want/to/install
 ```
-After logging off and logging in again to refresh the user permissions, load the python 3.5 environment again:
+After logging off and logging in again to refresh the user permissions, load the python 3.5 environment again
 ```
 source /opt/rh/rh-python35/enable
 ```
-You should be able to run the software from the directory you specified before with the command:
+You should be able to run the software from the directory you specified before with the command
 ```
 python3 gui.py
 ```
 
-### Microsoft Windows
+## Microsoft Windows
 
 to be updated:
 
