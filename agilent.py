@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import logging
 import visa
 from sys import platform
 

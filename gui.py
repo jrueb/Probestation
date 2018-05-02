@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import logging
 from PyQt5 import QtWidgets as QtW
 from PyQt5 import QtCore
 
@@ -352,12 +353,28 @@ class MainWindow(QtW.QMainWindow):
 
 if __name__ == "__main__":
     import sys
+    import optparse
 
     app = QtW.QApplication(sys.argv)
     if len(sys.argv) > 1 and os.path.isdir(sys.argv[1]):
         output_dir = sys.argv[1]
     else:
         output_dir = os.getcwd()
+
+    parser = optparse.OptionParser()
+    parser.add_option('-d', '--debug', action="store_true", dest="debug", help="Debug flag")
+    options, args = parser.parse_args()
+    logger = logging.getLogger('myLogger')
+    ch = logging.StreamHandler()
+    logger.addHandler(ch)
+    logger.setLevel(logging.INFO)
+    ch.setLevel(logging.INFO)
+    if options.debug:
+        logger.setLevel(logging.DEBUG)
+        ch.setLevel(logging.DEBUG)
+        logger.debug("Running in DEBUG mode!")
+        logger.debug(" Output path is: %s", output_dir)
+
     win = MainWindow(output_dir)
     win.show()
     sys.exit(app.exec_())

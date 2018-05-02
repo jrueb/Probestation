@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import logging
 from measurement_window import MeasurementThread, MeasurementWindow
 import keithley
 
@@ -25,25 +26,27 @@ class IvMeasurementThread(MeasurementThread):
 
         fname = getDateTimeFilename()
         output_csv = os.path.join(args.output_dir, fname + ".csv")
+        logger = logging.getLogger('myLogger')
+        logger.debug(' In iv_measurement.py:')
 
         try:
             keith6517B = keithley.Keithley6517B(args.devname_kei6517b)
-            print("Voltage source device introduced itself as {}".format(keith6517B.identify()))
+            logger.info("  Voltage source device introduced itself as {}".format(keith6517B.identify()))
             if not args.devname_kei6485 is None and args.guardring:
                 keith6485 = keithley.Keithley6485(args.devname_kei6485)
-                print("Guard ring device introduced itself as {}".format(keith6485.identify()))
+                logger.info("  Guard ring device introduced itself as {}".format(keith6485.identify()))
             else:
                 keith6485 = None
-                print("Running without guard ring measurement")
+                logger.info("  Running without guard ring measurement")
         except VisaIOError:
             errormsg = "Could not open devices."
             self.error_signal.emit(errormsg)
-            print(errormsg)
+            logger.error(errormsg)
             self.finished.emit(os.path.join(args.output_dir, fname))
             return
 
         try:
-            print("Starting measurement")
+            logger.info("Starting measurement")
 
             with open(output_csv, "w", newline="") as f:
                 if not keith6485 is None:
@@ -125,3 +128,4 @@ class IvMeasurementWindow(MeasurementWindow):
 
         self._ylabel = ["Pad current in A", "GR current in A"]
         self.setWindowTitle("IV measurement")
+        logger = logging.getLogger('myLogger')

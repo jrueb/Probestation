@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import logging
 from measurement_window import MeasurementThread, MeasurementWindow
 import keithley
 import agilent
