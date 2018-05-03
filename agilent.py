@@ -2,19 +2,19 @@
 
 import logging
 import visa
-from sys import platform
 
 class AgilentMeter(object):
     def __init__(self, resource_name):
-        if platform == "linux" or platform == "linux2" or platform == "darwin":
-            rm = visa.ResourceManager('@py')
-        elif platform == "win32" or platform == "cygwin":
-            rm = visa.ResourceManager()
-        resources = rm.list_resources()
+        rm1 = visa.ResourceManager('@py')
+        rm2 = visa.ResourceManager()
+        resources = rm1.list_resources() + rm2.list_resources()
         if not resource_name in resources:
             self._connected = False
             raise ValueError("Resource not found {}".format(resource_name))
-        self._res = rm.open_resource(resource_name)
+        if resource_name.startswith("ASRL"):
+            self._res = rm1.open_resource(resource_name, baud_rate=19200, data_bits=8)
+        else:
+            self._res = rm2.open_resource(resource_name)
         self._connected = True
 
         self._write("*RST; *CLS")
