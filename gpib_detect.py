@@ -8,8 +8,13 @@ class GPIBDetector(object):
         logger = logging.getLogger('myLogger')
         logger.debug(' In gpib_detect.py:')
         self._rm1 = visa.ResourceManager('@py')
-        self._rm2 = visa.ResourceManager()
-        resources = self._rm1.list_resources() + self._rm2.list_resources()
+        resources = self._rm1.list_resources()
+        try:
+            self._rm2 = visa.ResourceManager()
+            resources += self._rm2.list_resources()
+        except:
+            logger.debug('  Failed to open ni-visa')
+
         self.identifiers = {}
         logger.debug('  Found resources: %s', resources)
         for res in resources:

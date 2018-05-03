@@ -5,9 +5,14 @@ import visa
 
 class AgilentMeter(object):
     def __init__(self, resource_name):
+        logger = logging.getLogger('myLogger')
         rm1 = visa.ResourceManager('@py')
-        rm2 = visa.ResourceManager()
-        resources = rm1.list_resources() + rm2.list_resources()
+        resources = rm1.list_resources()
+        try:
+            rm2 = visa.ResourceManager()
+            resources += self._rm2.list_resources()
+        except:
+            logger.debug('  Failed to open ni-visa')
         if not resource_name in resources:
             self._connected = False
             raise ValueError("Resource not found {}".format(resource_name))
