@@ -21,11 +21,11 @@ The software has been tested to run on Ubuntu 18.04, CERN CentOS 7 and Microsoft
 
 ## Ubuntu 18.04
 
-On Ubuntu 18.04 you first have to install git and pip for python 3
+On Ubuntu 18.04 you first have to install `git` and `pip` for `python3`
 ```
 sudo apt-get install git python3-pip
 ```
-Then upgrade pip to the latest version
+Then upgrade `pip` to the latest version
 ```
 sudo pip3 install --upgrade pip
 ```
@@ -33,7 +33,7 @@ You can then install the required python packages
 ```
 sudo pip3 install pyvisa pyvisa-py numpy matplotlib pyserial pyqt5
 ```
-For a serial connection, your user account has to be added to the dialout group
+For a serial connection, your user account has to be added to the `dialout` group
 ```
 sudo usermod -a -G dialout $USER
 ```
@@ -48,7 +48,7 @@ python3 gui.py
 
 ## CERN CentOS 7
 
-On CERN CentOS 7 you also first have to install git and python 3. Open a root terminal and run
+On CERN CentOS 7 you also first have to install `git` and `python3`. Open a root terminal and run
 ```
 yum install centos-release-scl
 ```
@@ -56,11 +56,11 @@ to enable software collections and then run:
 ```
 yum install rh-python35 git
 ```
-Then you can load the python 3.5 environment
+Then you can load the `python3` environment
 ```
 source /opt/rh/rh-python35/enable
 ```
-and upgrade pip to the latest version
+and upgrade `pip` to the latest version
 ```
 pip3 install --upgrade pip
 ```
@@ -68,7 +68,7 @@ You can then install the required python packages
 ```
 pip3 install pyvisa pyvisa-py numpy matplotlib pyserial pyqt5
 ```
-For a serial connection, your user account has to be added to the dialout group
+For a serial connection, your user account has to be added to the `dialout` group
 ```
 usermod -a -G dialout <yourusername>
 ```
@@ -76,7 +76,7 @@ You can now close the root terminal. Then download the repository with
 ```
 git clone https://github.com/thomaseichhorn/probestation.git /where/you/want/to/install
 ```
-After logging off and logging in again to refresh the user permissions, load the python 3.5 environment again
+After logging off and logging in again to refresh the user permissions, load the `python3` environment again
 ```
 source /opt/rh/rh-python35/enable
 ```
@@ -85,15 +85,23 @@ You should be able to run the software from the directory you specified before w
 python3 gui.py
 ```
 
-## Microsoft Windows
+## Microsoft Windows 7
 
-to be updated:
-
-* python 3.4 or newer
-* [pyvisa](https://github.com/pyvisa/pyvisa) together with a backend like NI-VISA
-* PyQt5
-* [numpy](http://www.numpy.org/)
-* [matplotlib](https://matplotlib.org/) 2.2 or newer
+On Microsoft Windows 7 you need a Python 3.x environment, such as [Miniconda](https://conda.io/miniconda.html).
+If you have a DESY Windows installation, use DSM to install `Anaconda` (Software Categories -> Programming).
+With the `Anaconda prompt` you can install the needed python packages with the command
+```
+conda install -c conda-forge pyvisa pyvisa-py numpy matplotlib pyserial pyqt
+```
+Otherwise you can select these packages with the Anaconda Navigator.
+Assuming you downloaded the software to `C:\some\directory`, you can then run the software with
+```
+python C:\some\directory\gui.py
+```
+from the `Anaconda prompt`, or directly use the python executable from the Anaconda installation in a command prompt:
+```
+C:\Programfiles\Anaconda3\python.exe C:\some\directory\gui.py
+```
 
 # Recompiling the User Manual
 
