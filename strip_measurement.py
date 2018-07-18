@@ -18,7 +18,7 @@ def getDateTimeFilename():
     s = s.replace(".", "_")
     return s
 
-class CvMeasurementThread(MeasurementThread):
+class StripMeasurementThread(MeasurementThread):
     def __init__(self, args):
         super().__init__(args)
 
@@ -42,6 +42,8 @@ class CvMeasurementThread(MeasurementThread):
 
         try:
             print("Starting measurement")
+            if args.resistance:
+                print ("Resistance!")
 
             agilentE4980A.set_frequency(args.frequency)
             agilentE4980A.set_voltage_level(args.deltavolt)
@@ -57,23 +59,40 @@ class CvMeasurementThread(MeasurementThread):
                         break
 
                     line = agilentE4980A.get_reading()
-                    meas = agilent.parse_cgv(line, "agie4980a")
-                    meas["kei6517b_srcvoltage"] = keivolt
-                    if (not "kei6517b_srcvoltage" in meas
-                            or not "agie4980a_capacitance" in meas
-                            or not "agie4980a_conductance" in meas
-                            or meas["kei6517b_srcvoltage"] is None
-                            or meas["agie4980a_capacitance"] is None
-                            or meas["agie4980a_conductance"] is None):
-                        raise IOError("Got invalid reading from device")
+                    if not args.resistance:
+                        meas = agilent.parse_cgv(line, "agie4980a")
+                        meas["kei6517b_srcvoltage"] = keivolt
+                        if (not "kei6517b_srcvoltage" in meas
+                                or not "agie4980a_capacitance" in meas
+                                or not "agie4980a_conductance" in meas
+                                or meas["kei6517b_srcvoltage"] is None
+                                or meas["agie4980a_capacitance"] is None
+                                or meas["agie4980a_conductance"] is None):
+                            raise IOError("Got invalid reading from device")
 
-                    print("VSrc = {: 10.4g} V; C = {: 10.4g} F; G = {: 10.4g} S".format(
-                        meas["kei6517b_srcvoltage"],
-                        meas["agie4980a_capacitance"],
-                        meas["agie4980a_conductance"]))
+                        print("VSrc = {: 10.4g} V; C = {: 10.4g} F; G = {: 10.4g} S".format(
+                            meas["kei6517b_srcvoltage"],
+                            meas["agie4980a_capacitance"],
+                            meas["agie4980a_conductance"]))
+
+                    else:
+                        meas = agilent.get_resistance()
+                        meas["kei6517b_srcvoltage"] = keivolt
+                        if (not "kei6517b_srcvoltage" in meas
+                                or not "agie4980a_resistance" in meas
+                                or meas["kei6517b_srcvoltage"] is None
+                                or meas["agie4980a_resistance"] is None):
+                            raise IOError("Got invalid reading from device")
+
+                        print("VSrc = {: 10.4g} V; R = {: 10.4g} O".format(
+                            meas["kei6517b_srcvoltage"],
+                            meas["agie4980a_resistance"]))
 
                     writer.writerow(meas)
-                    self.measurement_ready.emit((meas["kei6517b_srcvoltage"], 1 / meas["agie4980a_capacitance"] ** 2))
+                    if not args.resistance:
+                        self.measurement_ready.emit(meas["kei6517b_srcvoltage"], meas["agie4980a_capacitance"])
+                    else:
+                        self.measurement_ready.emit(meas["kei6517b_srcvoltage"], meas["agie4980a_resistance"])
 
                     if self._exiting:
                         break
@@ -96,10 +115,13 @@ class CvMeasurementThread(MeasurementThread):
 
         self.finished.emit(os.path.join(args.output_dir, fname))
 
-class CvMeasurementWindow(MeasurementWindow):
+class StripMeasurementWindow(MeasurementWindow):
     def __init__(self, parent, args):
-        thread = CvMeasurementThread(args)
+        thread = StripMeasurementThread(args)
         super().__init__(parent, 1, args, thread)
 
-        self._ylabel = ["Capacitance${}^{-2}$ in $\\mathrm{F}^{-2}$", "Conductance in $\\mathrm{S}$"]
-        self.setWindowTitle("CV measurement")
+        if not args.resistance:
+            self._ylabel = ["Capacitance in $\\mathrm{F}$", "Conductance in $\\mathrm{S}$"]
+        else:
+            self._ylabel = ["Resistance in $\\mathrm{Ohm}$"]
+        self.setWindowTitle("Strip measurement")

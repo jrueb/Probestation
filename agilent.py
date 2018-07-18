@@ -38,6 +38,7 @@ class AgilentE4980A(AgilentMeter):
     def __init__(self, resource_name):
         super().__init__(resource_name)
 
+#need something else for resistance
         self._write(":FUNCTION:IMPEDANCE CPG")
         self._write(":APER MED,5")
 
@@ -65,11 +66,16 @@ class AgilentE4980A(AgilentMeter):
     def get_reading(self):
         return self._query("FETCH?").strip()
 
+    def get_resistance(self):
+        self._write(":FUNCTION:IMPEDANCE RX")
+        ref = {}
+        ret["{}_resistance".format(devname)] = self._query(":FETCH:IMPEDANCE:CORRECTED?")
+
 def parse_cgv(line, devname):
     line = line.split(",")
     ret = {}
 
-    ret["{}_capacity".format(devname)] = float(line[0])
+    ret["{}_capacitance".format(devname)] = float(line[0])
     ret["{}_conductance".format(devname)] = float(line[1])
 
     return ret
