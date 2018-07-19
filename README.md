@@ -2,6 +2,16 @@
 
 Refer to docs/manual.pdf for detailed instructions.
 
+# Usage
+
+Usage: `gui.py [options]`
+
+Options:
+  `-h` or `--help`   show this help message and exit
+  `-d` or `--debug`  Debug flag
+
+
+
 # DESY FH E-Lab Probe Station PC
 
 To run the probe station software, click on the Probestation link.
@@ -89,7 +99,7 @@ python3 gui.py
 
 On Microsoft Windows 7 you need a Python 3.x environment, such as [Miniconda](https://conda.io/miniconda.html).
 If you have a DESY Windows installation, use DSM to install `Anaconda` (Software Categories -> Programming).
-With the `Anaconda prompt` you can install the needed python packages with the command
+With the `Anaconda prompt` (or from the Windows command line) you can install the needed python packages with the command
 ```
 conda install -c conda-forge pyvisa pyvisa-py numpy matplotlib pyserial pyqt
 ```
@@ -98,10 +108,7 @@ Assuming you downloaded the software to `C:\some\directory`, you can then run th
 ```
 python C:\some\directory\gui.py
 ```
-from the `Anaconda prompt`, or directly use the python executable from the Anaconda installation in a command prompt:
-```
-C:\Programfiles\Anaconda3\python.exe C:\some\directory\gui.py
-```
+from the `Anaconda prompt` or from the Windows command line.
 
 # Recompiling the User Manual
 
