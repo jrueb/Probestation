@@ -3,7 +3,7 @@
 from PyQt4 import QtGui as QtW
 from PyQt4 import QtCore
 
-from matplotlib.backends.backend_qt5agg import ( FigureCanvas, NavigationToolbar2QT as NavigationToolbar )
+from matplotlib.backends.backend_qt4agg import ( FigureCanvas, NavigationToolbar2QT as NavigationToolbar )
 from matplotlib.figure import Figure
 import numpy as np
 

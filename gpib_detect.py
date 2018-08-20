@@ -28,10 +28,11 @@ class GPIBDetector ( object ) :
 		self.identifiers = {}
 		logger.debug ( u'  Probing devices...' )
 		for res in resources:
-			if not ( res.startswith ( u"ASRL/dev/ttyUSB" ) or res.startswith ( u"GPIB" ) ) :
+			logger.debug ( u'   Found %s', res )
+			if not ( res.startswith ( u"ASRL" ) or res.startswith ( u"GPIB" ) ) :
 				continue
 
-			if res.startswith ( u"ASRL/dev/ttyUSB" ) :
+			if res.startswith ( u"ASRL" ) :
 				logger.debug ( u'   Opening serial connection to %s', res )
 				dev = self._rm2.open_resource ( res, baud_rate = 19200, data_bits = 8 )
 			if res.startswith ( u"GPIB" ) :
