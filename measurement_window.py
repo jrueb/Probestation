@@ -1,7 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
-from PyQt5 import QtWidgets as QtW
-from PyQt5 import QtCore
+from PyQt4 import QtGui as QtW
+from PyQt4 import QtCore
+
 from matplotlib.backends.backend_qt5agg import ( FigureCanvas, NavigationToolbar2QT as NavigationToolbar )
 from matplotlib.figure import Figure
 import numpy as np

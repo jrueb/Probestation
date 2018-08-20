@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import logging
 from measurement_window import MeasurementThread, MeasurementWindow
@@ -6,7 +6,9 @@ import keithley
 import agilent
 from math import fabs
 
-from PyQt5 import QtCore
+from PyQt4 import QtGui as QtW
+from PyQt4 import QtCore
+
 import os
 import csv
 import datetime
