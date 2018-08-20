@@ -34,7 +34,7 @@ class GPIBDetector ( object ) :
 
 			if res.startswith ( u"ASRL" ) :
 				logger.debug ( u'   Opening serial connection to %s', res )
-				dev = self._rm2.open_resource ( res, baud_rate = 19200, data_bits = 8 )
+				dev = self._rm2.open_resource ( res, baud_rate = 19200, data_bits = 8, timeout = 10000 )
 			if res.startswith ( u"GPIB" ) :
 				logger.debug ( u'   Opening GPIB connection to %s', res )
 				dev = self._rm1.open_resource ( res )

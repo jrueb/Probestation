@@ -3,8 +3,12 @@
 from __future__ import absolute_import
 import logging
 
-from PyQt4 import QtGui as QtW
-from PyQt4 import QtCore
+try:
+    from PyQt5 import QtWidgets as QtW
+    from PyQt5 import QtCore
+except ImportError as e :
+    from PyQt4 import QtGui as QtW
+    from PyQt4 import QtCore
 
 import os
 from collections import namedtuple

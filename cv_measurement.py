@@ -9,8 +9,12 @@ import keithley
 import agilent
 import sys
 
-from PyQt4 import QtGui as QtW
-from PyQt4 import QtCore
+try:
+    from PyQt5 import QtWidgets as QtW
+    from PyQt5 import QtCore
+except ImportError as e :
+    from PyQt4 import QtGui as QtW
+    from PyQt4 import QtCore
 
 import os
 import csv
