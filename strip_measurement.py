@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 
+from __future__ import with_statement
+from __future__ import division
+from __future__ import absolute_import
 import logging
 from measurement_window import MeasurementThread, MeasurementWindow
 import keithley
 import agilent
+import sys
 from math import fabs
 
 from PyQt4 import QtGui as QtW
@@ -14,48 +18,56 @@ import csv
 import datetime
 from time import sleep
 from pyvisa.errors import VisaIOError, InvalidBinaryFormat
+from io import open
+from collections import OrderedDict
 
 def getDateTimeFilename ( ) :
 	s = datetime.datetime.now ( ) .isoformat ( )
-	s = s.replace ( ":", "_" )
-	s = s.replace ( ".", "_" )
+	s = s.replace ( u":", u"_" )
+	s = s.replace ( u".", u"_" )
 	return s
 
 class StripMeasurementThread ( MeasurementThread ) :
 	def __init__ ( self, args ) :
-		super ( ) .__init__ ( args )
+		super ( StripMeasurementThread, self ) .__init__ ( args )
 
 	def run ( self ) :
 		args = self.args
 
 		fname = getDateTimeFilename ( )
-		output_csv = os.path.join ( args.output_dir, fname + ".csv" )
+		output_csv = os.path.join ( str ( args.output_dir ), fname + u".csv" )
+		logger = logging.getLogger ( u'myLogger' )
+		logger.debug ( u' In strip_measurement.py:' )
 
 		try :
 			keith6517B = keithley.Keithley6517B ( args.devname_kei6517b )
-			print ( "Voltage source device introduced itself as {}" .format ( keith6517B.identify ( ) ) )
+			logger.info ( u"Voltage source device introduced itself as {}" .format ( keith6517B.identify ( ) ) )
 			agilentE4980A = agilent.AgilentE4980A ( args.devname_agiE4980A )
-			print ( "LCR meter introduced itself as {}" .format ( agilentE4980A.identify ( ) ) )
+			logger.info ( u"LCR meter introduced itself as {}" .format ( agilentE4980A.identify ( ) ) )
 		except VisaIOError :
-			errormsg = "Could not open devices."
+			errormsg = u"Could not open devices."
 			self.error_signal.emit ( errormsg )
-			print ( errormsg )
-			self.finished.emit ( os.path.join ( args.output_dir, fname ) )
+			logger.error ( errormsg )
+			self.finished.emit ( os.path.join ( str ( args.output_dir ), fname ) )
 			return
 
 		try :
-			print ( "Starting measurement" )
+			logger.info ( u"Starting measurement" )
 			if args.resistance :
-				print ( "Resistance!" )
+				logger.info ( u"Resistance!" )
 
 			agilentE4980A.set_frequency ( args.frequency )
 			agilentE4980A.set_voltage_level ( args.deltavolt )
 
-			with open ( output_csv, "w", newline = "" ) as f :
+			mode = 'w'
+			if sys.version_info.major < 3:
+				mode += 'b'
+
+			with open ( output_csv, mode ) as f :
 				if not args.resistance :
-					header = ["kei6517b_srcvoltage", "agie4980a_capacitance"]
+					header = OrderedDict ( [ ( 'kei6517b_srcvoltage', None ), ( 'agie4980a_capacitance', None ) ] )
 				else :
-					header = ["kei6517b_srcvoltage", "agie4980a_resistance"]
+					header = OrderedDict ( [ ( 'kei6517b_srcvoltage', None ), ( 'agie4980a_resistance', None ) ] )
 				writer = csv.DictWriter ( f, header, extrasaction = "ignore" )
 				writer.writeheader ( )
 
@@ -93,31 +105,31 @@ class StripMeasurementThread ( MeasurementThread ) :
 					if self._exiting :
 						break
 
-		except ( PermissionError, IOError ) as e :
-			errormsg = "Error: {}" .format ( e )
+		except IOError as e :
+			errormsg = u"Error: {}" .format ( e )
 			self.error_signal.emit ( errormsg )
-			print ( errormsg )
+			logger.error ( errormsg )
 		except ( VisaIOError, InvalidBinaryFormat, ValueError ) :
-			errormsg = "Error during communication with devices."
+			errormsg = u"Error during communication with devices."
 			self.error_signal.emit ( errormsg )
-			print ( errormsg )
+			logger.error ( errormsg )
 		finally :
-			print ( "Stopping measurement" )
+			logger.info ( u"Stopping measurement" )
 			try :
 				keith6517B.stop_measurement ( )
 			except ( VisaIOError, InvalidBinaryFormat, ValueError ) :
-				print ( "Error during stopping. Trying to turn off output" )
+				logger.error ( u"Error during stopping. Trying to turn off output" )
 				keith6517B.set_output_state ( False )
 
-		self.finished.emit ( os.path.join ( args.output_dir, fname ) )
+		self.finished.emit ( os.path.join ( str ( args.output_dir ), fname ) )
 
 class StripMeasurementWindow ( MeasurementWindow ) :
 	def __init__ ( self, parent, args ) :
 		thread = StripMeasurementThread ( args )
-		super ( ) .__init__ ( parent, 1, args, thread )
+		super ( StripMeasurementWindow, self ) .__init__ ( parent, 1, args, thread )
 
 		if not args.resistance :
-			self._ylabel = ["Capacitance in $\\mathrm{F}$", "Conductance in $\\mathrm{S}$"]
+			self._ylabel = [u"Capacitance in $\\mathrm{F}$", u"Conductance in $\\mathrm{S}$"]
 		else:
-			self._ylabel = ["Resistance in $\\mathrm{Ohm}$"]
-		self.setWindowTitle ( "Strip measurement" )
+			self._ylabel = [u"Resistance in $\\mathrm{Ohm}$"]
+		self.setWindowTitle ( u"Strip measurement" )

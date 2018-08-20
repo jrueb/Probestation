@@ -2,15 +2,18 @@
 
 from __future__ import absolute_import
 import visa
+import logging
 from sys import platform
 
 class GPIBDetector ( object ) :
 	def __init__ ( self ) :
+		logger = logging.getLogger ( u'myLogger' )
 		#if platform == "linux" or platform == "linux2" or platform == "darwin":
 		#	self._rm = visa.ResourceManager('@py')
 		#elif platform == "win32" or platform == "cygwin":
 		#	self._rm = visa.ResourceManager()
 		#resources = self._rm.list_resources()
+		resources = [""] * 1
 		try :
 			self._rm1 = visa.ResourceManager ( )
 			resources = self._rm1.list_resources ( )

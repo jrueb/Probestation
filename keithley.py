@@ -8,6 +8,7 @@ import numpy as np
 class KeithleyMeter ( object ) :
 	def __init__ ( self, resource_name ) :
 		logger = logging.getLogger ( 'myLogger' )
+		resources = [""] * 1
 		try :
 			rm1 = visa.ResourceManager ( )
 			resources = rm1.list_resources ( )
@@ -52,7 +53,7 @@ class KeithleyMeter ( object ) :
 
 class Keithley6517B ( KeithleyMeter ) :
 	def __init__ ( self, resource_name ) :
-		super ( ) .__init__ ( resource_name )
+		super ( Keithley6517B, self ) .__init__ ( resource_name )
 
 		self._write ( ":OUTPUT1:STATE OFF" )
 		self._write ( ":SOURCE:VOLTAGE:RANGE 100" )
@@ -131,7 +132,7 @@ class Keithley6517B ( KeithleyMeter ) :
 
 class Keithley6485 ( KeithleyMeter ) :
 	def __init__ ( self, resource_name ) :
-		super ( ) .__init__ ( resource_name )
+		super ( Keithley6485, self ) .__init__ ( resource_name )
 
 		self._write ( ":SENSE:FUNCTION 'CURRENT:DC'" )
 		self._write ( ":FORMAT:ELEMENTS READING,UNITS" )

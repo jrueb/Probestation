@@ -13,7 +13,7 @@ class MeasurementThread ( QtCore.QThread ) :
 	finished = QtCore.pyqtSignal ( str )
 
 	def __init__ ( self, args ) :
-		super ( ) .__init__ ( )
+		super ( MeasurementThread, self ) .__init__ ( )
 		self.args = args
 		self._exiting = False
 
@@ -26,7 +26,7 @@ class MeasurementThread ( QtCore.QThread ) :
 
 class MeasurementWindow ( QtW.QWidget ) :
 	def __init__ ( self, parent, num_plots, args, thread ) :
-		super ( ) .__init__ ( parent )
+		super ( MeasurementWindow, self ) .__init__ ( parent )
 		self.setWindowFlags ( QtCore.Qt.Window )
 		self.resize ( 500, 500 )
 		self._center ( )
@@ -119,8 +119,8 @@ class MeasurementWindow ( QtW.QWidget ) :
 	def _measurementFinished ( self, name ) :
 		try :
 			#Other formats like .pdf are also supported
-			self.savefig ( name + ".svg" )
-		except ( IOError, PermissionError ) as e :
+			self.savefig ( str ( name ) + ".svg" )
+		except IOError as e :
 			pass
 
 	def _on_abs_toggled ( self ) :
