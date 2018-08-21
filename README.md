@@ -1,15 +1,17 @@
 # Probe Station Manual and Software
 
-Refer to docs/manual.pdf for detailed instructions.
+Refer to `docs/manual.pdf` for detailed operation and usage instructions.
+
 
 # Usage
 
-Usage: `gui.py [options]`
+Usage: `python gui.py [options] <default storage path>`
+
+If no default storage path is specified, the current directory is used.
 
 Options:
-  `-h` or `--help`   show this help message and exit
-  `-d` or `--debug`  Debug flag
-
+  `-h`, `--help`   show this help message and exit
+  `-d`, `--debug`  debug flag, enables more verbose console output
 
 
 # DESY FH E-Lab Probe Station PC
@@ -24,18 +26,23 @@ running in the folder:
 D:\Probestation
 ```
 This should start the software.
+cd 
 
 # Installation on other PCs
 
-The software has been tested to run on Ubuntu 18.04, CERN CentOS 7 and Microsoft Windows 7.
+The software has been tested to run on Ubuntu 18.04, Raspbian Strech, CERN CentOS 7 and Microsoft Windows 7.
+
 
 ## Ubuntu 18.04
 
-On Ubuntu 18.04 you first have to install `git` and `pip` for `python3`
+
+### Normal Installation
+
+On Ubuntu 18.04 you first have to install `git` and `pip` for python
 ```
 sudo apt-get install git python3-pip
 ```
-Then upgrade `pip` to the latest version
+Upgrade `pip` to the latest version with
 ```
 sudo pip3 install --upgrade pip
 ```
@@ -55,6 +62,46 @@ After logging off and logging in again to refresh the user permissions, you shou
 ```
 python3 gui.py
 ```
+
+
+### Advanced Options
+
+These commands should not be needed, but are listed here as reference.
+
+- If you do not have `sudo` rights, append a `--user` to the `pip3` commands to install the python packages for your user only.
+
+- To use `Python 2.7`, run `sudo apt-get install python-pip` to get pip2. Then install the python packages, substituting `pip2` for `pip3` and run the program with the command `python gui.py`.
+
+- The program automatically defaults back to `Qt4` if `Qt5` can not be found. The `Qt4` packages can't be installed by `pip`, but have to be installed with `sudo apt-get install python-qt4` for `Python 2.7` and `sudo apt-get install python3-pyqt4` for `Python 3`.
+
+
+## Raspbian Strech
+
+Currently, `Qt5` is not available via the package manager, so the easiest way to run the software is with `Python 2` using `Qt 4`. You will need to install some packages:
+```
+sudo apt-get install git python-qt4
+```
+Upgrade `pip` to the latest version with
+```
+sudo pip install --upgrade pip
+```
+You can then install the required python packages
+```
+sudo pip install pyvisa pyvisa-py numpy matplotlib pyserial
+```
+For a serial connection, your user account has to be added to the `dialout` group
+```
+sudo usermod -a -G dialout $USER
+```
+Then download the repository with
+```
+git clone https://github.com/thomaseichhorn/probestation.git /where/you/want/to/install
+```
+After logging off and logging in again to refresh the user permissions, you should be able to run the software from the directory you specified before with the command
+```
+python gui.py
+```
+
 
 ## CERN CentOS 7
 
@@ -95,9 +142,10 @@ You should be able to run the software from the directory you specified before w
 python3 gui.py
 ```
 
+
 ## Microsoft Windows 7
 
-On Microsoft Windows 7 you need a Python 3.x environment, such as [Miniconda](https://conda.io/miniconda.html).
+On Microsoft Windows 7 you need a Python environment, such as [Miniconda](https://conda.io/miniconda.html).
 If you have a DESY Windows installation, use DSM to install `Anaconda` (Software Categories -> Programming).
 With the `Anaconda prompt` (or from the Windows command line) you can install the needed python packages with the command
 ```
@@ -110,13 +158,15 @@ python C:\some\directory\gui.py
 ```
 from the `Anaconda prompt` or from the Windows command line.
 
+
 # Recompiling the User Manual
 
 To recompile the user manual, you need a working latex installation with some additional packages.
 
-## Ubuntu 18.04
 
-On Ubuntu 18.04 you need to install several latex packages via
+## Ubuntu 18.04 and Raspbian Strech
+
+On Ubuntu 18.04 and Raspbian Strech you need to install several `latex` packages via
 ```
 sudo apt-get install texlive-latex-base texlive-science texlive-latex-extra
 ```
@@ -125,6 +175,25 @@ You can then build the documentation with the command
 cd doc && pdflatex manual.tex
 ```
 
+
 ## CERN CentOS 7
 
-to be updated:
+On CERN CentOS 7 you will need to install several `latex` packages. Unfortunately, the easiest way is to install all available ones from a root terminal
+```
+yum install texlive-*
+```
+You then have to download some packages manually
+```
+cd doc
+wget http://www.cs.cmu.edu/afs/cs/misc/tex/common/teTeX-1.0/lib/texmf/tex/latex/misc/SIunits.sty
+wget http://www.cs.cmu.edu/afs/cs/misc/tex/common/teTeX-1.0/lib/texmf/tex/latex/misc/tocbibind.sty
+wget http://www.cs.cmu.edu/afs/cs/misc/tex/common/teTeX-1.0/lib/texmf/tex/latex/misc/stdclsdv.sty
+```
+Before you can then build the documentation
+```
+pdflatex manual.tex
+```
+
+## Microsoft Windows 7
+
+This is beyond the scope of this document, there are good step-by-step instructions on the internet.
