@@ -17,11 +17,11 @@ Options:
 # DESY FH E-Lab Probe Station PC
 
 To run the probe station software, click on the Probestation link.
-This executes the command:
+This executes the command
 ```
 C:\Programfiles\Anaconda3\python.exe gui.py D:\Measurements
 ```
-running in the folder:
+running in the folder
 ```
 D:\Probestation
 ```
@@ -31,6 +31,7 @@ cd
 # Installation on other PCs
 
 The software has been tested to run on Ubuntu 18.04, Raspbian Strech, CERN CentOS 7 and Microsoft Windows 7.
+It is already preinstalled on `fhlprobest.desy.de`.
 
 
 ## Ubuntu 18.04
@@ -77,7 +78,7 @@ These commands should not be needed, but are listed here as reference.
 
 ## Raspbian Strech
 
-Currently, `Qt5` is not available via the package manager, so the easiest way to run the software is with `Python 2` using `Qt 4`. You will need to install some packages:
+Currently, `Qt5` is not available via the package manager, so the easiest way to run the software is with `Python 2` using `Qt 4`. You will need to install some packages
 ```
 sudo apt-get install git python-qt4
 ```
@@ -109,7 +110,7 @@ On CERN CentOS 7 you also first have to install `git` and `python3`. Open a root
 ```
 yum install centos-release-scl
 ```
-to enable software collections and then run:
+to enable software collections and then run
 ```
 yum install rh-python35 git
 ```

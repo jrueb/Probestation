@@ -278,11 +278,13 @@ An overview of the dry air and chiller connections is shown in figure~\ref{fig:d
 The read-out computer (computer name: {\tt fhlprobest.desy.de}) is connected to the measurement devices via an GPIB-to-USB connector.
 As the operating system is Windows 7, a login is only possible if your DESY user account is in the group {\tt win}.
 Your group administrator or the UCO can add you to this group.
-Also, a remote connection is possible via the {\tt rdp} protocol if your account is in the group {\tt winterm}, so you can remotely connect to the read-out computer via the command:
+Also, a remote connection is possible via the {\tt rdp} protocol if your account is in the group {\tt winterm}, so you can remotely connect to the read-out computer via the command
 
+\medskip
 \begin{lstlisting}
 xfreerdp --ignore-certificate -u my-user-name -d win fhlprobest.desy.de
 \end{lstlisting}
+\medskip
 
 The read-out software can be used both from local or remote login and is detailed in section~\ref{sec:meas}.\\
 
@@ -466,16 +468,20 @@ The Keithley 6485 is not needed for a CV measurement and can remain switched off
 Log in to the read-out computer with your user credentials.
 Navigate to
 
+\medskip
 \begin{lstlisting}
 D:\Probestation
 \end{lstlisting}
+\medskip
 
 and run the software by double-clicking on the link {\tt Probestation}.
 This will execute the command
 
+\medskip
 \begin{lstlisting}
 C:\Programfiles\Anaconda3\python.exe gui.py D:\Measurements
 \end{lstlisting}
+\medskip
 
 in that folder.
 The software GUI will start with the IV tab open, as shown in figure~\ref{fig:softwareopeniv}.\\
@@ -553,102 +559,278 @@ Then switch the vacuum off and carefully remove your DUT before closing the cold
 \subsection{Installing the Software}
 \label{sec:installation}
 
-The software has been tested to run on Ubuntu 18.04, CERN CentOS 7 and Microsoft Windows 7.
+The software has been tested to run on Ubuntu 18.04, Raspbian Strech, CERN CentOS 7 and Microsoft Windows 7.
 It is already preinstalled on {\tt fhlprobest.desy.de}.
 
 \subsubsection{Ubuntu 18.04}
 
-On Ubuntu 18.04 you first have to install git and pip for python 3
+\paragraph{Normal Installation\\}
+On Ubuntu 18.04 you first have to install {\tt git} and {\tt pip} for python
 
+\medskip
 \begin{lstlisting}
 sudo apt-get install git python3-pip
 \end{lstlisting}
+\medskip
 
-Then upgrade pip to the latest version
+Then upgrade {\tt pip} to the latest version
 
+\medskip
 \begin{lstlisting}
 sudo pip3 install --upgrade pip
 \end{lstlisting}
+\medskip
 
 You can then install the required python packages
 
+\medskip
 \begin{lstlisting}
 sudo pip3 install pyvisa pyvisa-py numpy matplotlib pyserial pyqt5
 \end{lstlisting}
+\medskip
 
-For a serial connection, your user account has to be added to the dialout group
+For a serial connection, your user account has to be added to the {\tt dialout} group
 
+\medskip
 \begin{lstlisting}
 sudo usermod -a -G dialout $USER
 \end{lstlisting}
+\medskip
 
 Then download the repository with
 
+\medskip
 \begin{lstlisting}
 git clone https://github.com/thomaseichhorn/probestation.git /where/you/want/to/install
 \end{lstlisting}
+\medskip
 
 After logging off and logging in again to refresh the user permissions, you should be able to run the software from the directory you specified before with the command
 
+\medskip
 \begin{lstlisting}
 python3 gui.py
 \end{lstlisting}
+\medskip
 
-\subsubsection{CERN CentOS 7}
+\paragraph{Advanced Options\\}
+These commands should not be needed, but are listed here as reference.
 
-On CERN CentOS 7 you also first have to install git and python 3. Open a root terminal and run
+\begin{itemize}
+\item{} If you do not have {\tt sudo} rights, append a {\tt -{}-user} to the {\tt pip3} commands to install the python packages for your user only.
 
+\item{} To use {\tt Python 2.7}, run {\tt sudo apt-get install python-pip} to get {\tt pip2}.
+Then install the python packages, substituting {\tt pip2} for {\tt pip3} and run the program with the command {\tt python gui.py}.
+
+\item{} The program automatically defaults back to {\tt Qt4} if {\tt Qt5} can not be found.
+The {\tt Qt4} packages can't be installed by {\tt pip}, but have to be installed with {\tt sudo apt-get install python-qt4} for {\tt Python 2.7} and {\tt sudo apt-get install python3-pyqt4} for {\tt Python 3}.
+\end{itemize}
+
+\subsubsection{Raspbian Strech}
+
+Currently, {\tt Qt5} is not available via the package manager, so the easiest way to run the software is with {\tt Python 2} using {\tt Qt 4}.
+You will need to install some packages
+
+\medskip
 \begin{lstlisting}
-yum install centos-release-scl
+sudo apt-get install git python-qt4
 \end{lstlisting}
+\medskip
 
-to enable software collections and then run:
+Upgrade {\tt pip} to the latest version with
 
+\medskip
 \begin{lstlisting}
-yum install rh-python35 git
+sudo pip install --upgrade pip
 \end{lstlisting}
-
-Then you can load the python 3.5 environment
-
-\begin{lstlisting}
-source /opt/rh/rh-python35/enable
-\end{lstlisting}
-
-and upgrade pip to the latest version
-
-\begin{lstlisting}
-pip3 install --upgrade pip
-\end{lstlisting}
+\medskip
 
 You can then install the required python packages
 
+\medskip
 \begin{lstlisting}
-pip3 install pyvisa pyvisa-py numpy matplotlib pyserial pyqt5
+sudo pip install pyvisa pyvisa-py numpy matplotlib pyserial
 \end{lstlisting}
+\medskip
 
-For a serial connection, your user account has to be added to the dialout group
+For a serial connection, your user account has to be added to the {\tt dialout} group
 
+\medskip
 \begin{lstlisting}
-usermod -a -G dialout <yourusername>
+sudo usermod -a -G dialout $USER
 \end{lstlisting}
+\medskip
 
-You can now close the root terminal. Then download the repository with
+Then download the repository with
 
+\medskip
 \begin{lstlisting}
 git clone https://github.com/thomaseichhorn/probestation.git /where/you/want/to/install
 \end{lstlisting}
+\medskip
 
-After logging off and logging in again to refresh the user permissions, load the python 3.5 environment again
+After logging off and logging in again to refresh the user permissions, you should be able to run the software from the directory you specified before with the command
 
+\medskip
+\begin{lstlisting}
+python gui.py
+\end{lstlisting}
+\medskip
+
+\subsubsection{CERN CentOS 7}
+
+On CERN CentOS 7 you also first have to install {\tt git} and {\tt python3}.
+Open a root terminal and run
+
+\medskip
+\begin{lstlisting}
+yum install centos-release-scl
+\end{lstlisting}
+\medskip
+
+to enable software collections and then run
+
+\medskip
+\begin{lstlisting}
+yum install rh-python35 git
+\end{lstlisting}
+\medskip
+
+Then you can load the {\tt python3} environment
+
+\medskip
 \begin{lstlisting}
 source /opt/rh/rh-python35/enable
 \end{lstlisting}
+\medskip
+
+and upgrade {\tt pip} to the latest version
+
+\medskip
+\begin{lstlisting}
+pip3 install --upgrade pip
+\end{lstlisting}
+\medskip
+
+You can then install the required python packages
+
+\medskip
+\begin{lstlisting}
+pip3 install pyvisa pyvisa-py numpy matplotlib pyserial pyqt5
+\end{lstlisting}
+\medskip
+
+For a serial connection, your user account has to be added to the dialout group
+
+\medskip
+\begin{lstlisting}
+usermod -a -G dialout <yourusername>
+\end{lstlisting}
+\medskip
+
+You can now close the root terminal.
+Then download the repository with
+
+\medskip
+\begin{lstlisting}
+git clone https://github.com/thomaseichhorn/probestation.git /where/you/want/to/install
+\end{lstlisting}
+\medskip
+
+After logging off and logging in again to refresh the user permissions, load the {\tt python3} environment again
+
+\medskip
+\begin{lstlisting}
+source /opt/rh/rh-python35/enable
+\end{lstlisting}
+\medskip
 
 You should be able to run the software from the directory you specified before with the command
 
+\medskip
 \begin{lstlisting}
 python3 gui.py
 \end{lstlisting}
+\medskip
+
+\subsubsection{Microsoft Windows 7}
+
+On Microsoft Windows 7 you need a Python environment, such as {\tt Miniconda}\footnote{\href{https://conda.io/miniconda.html}{https://conda.io/miniconda.html}}.
+If you have a DESY Windows installation, use DSM to install {\tt Anaconda} (Software Categories $\rightarrow$ Programming).
+With the {\tt Anaconda prompt} (or from the Windows command line) you can install the needed python packages with the command
+
+\medskip
+\begin{lstlisting}
+conda install -c conda-forge pyvisa pyvisa-py numpy matplotlib pyserial pyqt
+\end{lstlisting}
+\medskip
+
+Otherwise you can select these packages with the Anaconda Navigator.
+Assuming you downloaded the software to {\tt C:\textbackslash some\textbackslash directory}, you can then run the software with
+
+\medskip
+\begin{lstlisting}
+python C:\some\directory\gui.py
+\end{lstlisting}
+\medskip
+
+from the {\tt Anaconda prompt} or from the Windows command line.
+
+\subsection{Recompiling the User Manual}
+
+To recompile the user manual, you need a working latex installation with some additional packages.
+
+\subsubsection{Ubuntu 18.04 and Raspbian Strech}
+
+On Ubuntu 18.04 and Raspbian Strech you need to install several {\tt latex} packages via
+
+\medskip
+\begin{lstlisting}
+sudo apt-get install texlive-latex-base texlive-science texlive-latex-extra
+\end{lstlisting}
+\medskip
+
+You can then build the documentation with the command
+
+\medskip
+\begin{lstlisting}
+cd doc && pdflatex manual.tex
+\end{lstlisting}
+\medskip
+
+\subsubsection{CERN CentOS 7}
+
+On CERN CentOS 7 you will need to install several {\tt latex} packages.
+Unfortunately, the easiest way is to install all available ones from a root terminal
+
+\medskip
+\begin{lstlisting}
+yum install texlive-*
+\end{lstlisting}
+\medskip
+
+You then have to download some packages manually
+
+\medskip
+\begin{lstlisting}
+cd doc
+wget http://www.cs.cmu.edu/afs/cs/misc/tex/common/teTeX-1.0/lib/texmf/tex/latex/misc/SIunits.sty
+wget http://www.cs.cmu.edu/afs/cs/misc/tex/common/teTeX-1.0/lib/texmf/tex/latex/misc/tocbibind.sty
+wget http://www.cs.cmu.edu/afs/cs/misc/tex/common/teTeX-1.0/lib/texmf/tex/latex/misc/stdclsdv.sty
+\end{lstlisting}
+\medskip
+
+Before you can then build the documentation
+
+\medskip
+\begin{lstlisting}
+pdflatex manual.tex
+\end{lstlisting}
+\medskip
+
+\subsubsection{Microsoft Windows 7}
+
+This is beyond the scope of this document, there are good step-by-step instructions on the internet.
 
 \newpage
 \begin{thebibliography}{}
