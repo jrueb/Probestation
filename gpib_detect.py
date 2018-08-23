@@ -3,6 +3,7 @@
 from __future__ import absolute_import
 import visa
 import logging
+import serial
 from sys import platform
 
 class GPIBDetector ( object ) :
@@ -32,15 +33,23 @@ class GPIBDetector ( object ) :
 			if not ( res.startswith ( u"ASRL" ) or res.startswith ( u"GPIB" ) ) :
 				continue
 
+			dev = None
 			if res.startswith ( u"ASRL" ) :
 				logger.debug ( u'   Opening serial connection to %s', res )
-				dev = self._rm2.open_resource ( res, baud_rate = 19200, data_bits = 8, timeout = 10000 )
+				try :
+					dev = self._rm2.open_resource ( res, baud_rate = 19200, data_bits = 8, timeout = 10000 )
+				except :
+					logger.debug ( u'   Could not open serial connection to %s', res )
 			if res.startswith ( u"GPIB" ) :
 				logger.debug ( u'   Opening GPIB connection to %s', res )
-				dev = self._rm1.open_resource ( res )
-			idn = dev.query ( u"*IDN?" )
-			self.identifiers[res] = idn
-			dev.close ( )
+				try : 
+					dev = self._rm1.open_resource ( res )
+				except :
+					logger.debug ( u'   Could not open GPIB connection to %s', res )
+			if not ( dev == None ) :
+				idn = dev.query ( u"*IDN?" )
+				self.identifiers[res] = idn
+				dev.close ( )
 
 	def get_resname_for ( self, search ) :
 		for key, value in self.identifiers.items ( ) :
