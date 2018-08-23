@@ -95,7 +95,7 @@ Turning counter-clockwise decreases the air flow, clockwise turns increase it.\\
 \subsection{Microscope}
 \label{sec:microscope}
 
-The Olympus SZ61 microscope is attached to the cold box via a moveable arm.
+The Olympus SZ61 microscope is attached to the cold box via a movable arm.
 A switch on the lower part of the black lens casing turns on the light.
 While moving the microscope, be careful that the light's power cable does not get trapped inside the cold box.
 The microscope is used for placement of DUTs on the chuck and the positioning of the probe needles.
@@ -195,23 +195,44 @@ After a measurement, the Keithley 6517B should be turned off again.\\
 The Agilent E4980A LCR-Meter is used for capacitance measurements.
 Via the CV/IV box it can be switched into the connection between the Keithley 6517B and the DUT/chuck.
 A manual can be downloaded from~\cite{ref:agilentref}.
-The CV/IV box shown in figure~\ref{fig:cvivbox} is plugged into the front of the Agilent E4980A and allows the user to select between IV (switch to top) and CV (switch to bottom) measurement.
+The CV/IV box shown in figure~\ref{fig:cvivbox} is plugged into the front of the Agilent E4980A and allows the user to select between IV (bottom switch to top) and CV (bottom switch to bottom) measurement modes.
+The top switch can be used to connect (${\rm C_{int}}$) or disconnect (${\rm R_{int}}$) the Agilent E4980A to the top row connectors.
 Switching should {\bf never} be done during a measurement or whilst a voltage is applied.
 Note that if the CV/IV box is in CV mode, the current measurement of the Keithley 6517B will no longer be accurate.
-This is because of the large internal resistance of the Agilent E4980A.\\
+This is because of the large internal resistance of the Agilent E4980A and the CV/IV box.
+Thus, the following operation modes are available:\\
+
+\begin{itemize}
+\item{{\bf IV Mode:\\}}
+The bottom switch is in the top position ({\tt IV}).
+The position of the top switch is not relevant as only the Keithley 6517B and optionally the Keithley 6485 are used.
+
+\item{{\bf CV Mode:\\}}
+The bottom switch is in the bottom position ({\tt CV}), the top switch is in the top position (${\tt R_{int}}$).
+The Keithley 6517B and the Agilent E4980A are used via a single probe needle.
+
+\item{${\rm {\bf C_{int}}}$ {\bf Mode:\\}}
+The bottom switch is in the top position ({\tt IV}), the top switch is in the bottom position (${\tt C_{int}}$).
+The Keithley 6517B and the Agilent E4980A are used via different probe needles.
+
+\item{${\rm {\bf R_{int}}}$ {\bf Mode:\\}}
+The bottom switch is in the top position ({\tt IV}), the top switch is in the top position (${\tt R_{int}}$).
+The Keithley 6517B and an optional external device are usable.
+\end{itemize}
+
 
 \begin{figure}[hbtp]
 \centering
 \begin{subfigure}[t]{0.475\textwidth}
 \centering\captionsetup{width=.8\linewidth}%
 \includegraphics[width=\linewidth]{pictures/front_agilent.jpg}
-\caption[Front View of the Agilent E4980A]{Front view of the Agilent E4980A with the CV/IV box attached. The on/off switch is at the bottom left of the device.}
+\caption[Front View of the Agilent E4980A]{Front view of the Agilent E4980A with the old CV/IV box attached. The on/off switch is at the bottom left of the device.}
 \label{fig:agilent}
 \end{subfigure}
 \begin{subfigure}[t]{0.475\textwidth}
 \centering\captionsetup{width=.8\linewidth}%
-\includegraphics[width=\linewidth]{pictures/cvivswitch.jpg}
-\caption[The CV/IV Box]{Close-up of the CV/IV Box. The {\tt HVlow} connector goes to the {\tt HVlow} needle, the {\tt HVhigh} connector to the chuck. {\tt ImeasHV} goes to the measurement input of the Keithley 6517B, {\tt HVin} to the HV output of the Keithley 6517B, c.f. section~\ref{sec:connections}.}
+\includegraphics[width=\linewidth]{pictures/cvivswitch2.jpg}
+\caption[The CV/IV Box]{Close-up of the CV/IV Box. A description of all the connections can be found in section~\ref{sec:connections}.}
 \label{fig:cvivbox}
 \end{subfigure}
 \end{figure}
@@ -291,14 +312,7 @@ The read-out software can be used both from local or remote login and is detaile
 \subsection{Electrical, Dry Air, and Chiller Connections}
 \label{sec:connections}
 
-The electrical connections between devices are shown in figure~\ref{fig:electrical}.
-The triax measurement input of the Keithley 6517B is connected to the {\tt I meas} connector of the CV/IV box with a BNC cable that is labelled {\tt ImeasHV} on both ends.
-The Keithley 6517B's back side HV source output is connected to the {\tt Hi in} connector of the CV/IV box with a BNC cable labelled {\tt HVin} on one side and {\tt HVout} on the other side.
-From the CV/IV box the connections {\tt Lo} and {\tt Hi} go to the {\tt Lo} needle and the chuck, via BNC cables marked {\tt HVlow} and {\tt HVhigh}, respectively.
-The backside measurement input of the Keithley 6485 is directly connected to the {\tt GR needle}.
-The BNC cable is labelled {\tt Iguard} on both ends.\\
-
-\begin{figure}[hbtp]
+\begin{figure}[hbtp!]
 \centering
 \begin{tikzpicture}
 [scale=0.9,blackarrow/.style={->,black,very thick},blueline/.style={->,blue,very thick},redline/.style={->,red,very thick},blackline/.style={black,very thick}]
@@ -321,8 +335,8 @@ The BNC cable is labelled {\tt Iguard} on both ends.\\
 
 % HV out
 \draw[blackline] (2,0,0) -- (2,-3,0) -- (5.75,-3,0) -- (5.75,-1,0);
-\node[->,black](title) at (1.75,-0.75){\rotatebox{90}{\small {\tt HVout}}};
-\node[->,black](title) at (5.5,-1.5){\rotatebox{90}{\small {\tt HVin}}};
+\node[->,black](title) at (1.75,-0.8){\rotatebox{90}{\small {\tt High out}}};
+\node[->,black](title) at (5.5,-1.75){\rotatebox{90}{\small {\tt High in}}};
 
 % IV meas
 \draw[blackline] (1,0,0) -- (1,-3.5,0) -- (6.25,-3.5,0) -- (6.25,-1,0);
@@ -331,7 +345,7 @@ The BNC cable is labelled {\tt Iguard} on both ends.\\
 
 % hi out
 \draw[blackline] (6.75,-1.0,0) -- (6.75,-4,0) -- (5.75,-4,0) -- (5.75,-6.5,0);
-\node[->,black](title) at (6.5,-1.65){\rotatebox{90}{\small {\tt HVhigh}}};
+\node[->,black](title) at (6.5,-1.85){\rotatebox{90}{\small {\tt High out}}};
 \node[->,black](title) at (5.5,-5.5){\rotatebox{90}{\small {\tt HVhigh}}};
 
 % chuck
@@ -355,12 +369,15 @@ The BNC cable is labelled {\tt Iguard} on both ends.\\
 \label{fig:electrical}
 \end{figure}
 
-From the dry air outlet on the lab wall next to the door, a hose runs towards the probe station.
-It is connected to a t-piece, from which one line goes directly to the cold box, another to the chiller control unit.
-From the chiller control unit, a line then goes into the cold box towards the chuck.
-Figure~\ref{fig:dryair} shows the default connections.\\
+The electrical connections between devices are shown in figure~\ref{fig:electrical}.
+The triax measurement input of the Keithley 6517B is connected to the {\tt I meas (needle)} connector of the CV/IV box with a BNC cable that is labelled {\tt ImeasHV} on both ends.
+The Keithley 6517B's back side HV source output is connected to the {\tt High in (chuck)} connector of the CV/IV box with a red SHV cable labelled {\tt High in (chuck)} on the box side and {\tt High out (chuck)} on the device side.
+From the CV/IV box the connector {\tt High out (chuck)} is connected to the chuck, via a red SHV cable marked {\tt High out (chuck)}.
+The connector {\tt Low in (needle)} is connected to the {\tt Lo} needle via a BNC cable labelled {\tt HVlow}.
+The backside measurement input of the Keithley 6485 is directly connected to the {\tt GR needle}.
+The BNC cable is labelled {\tt Iguard} on both ends.\\
 
-\begin{figure}[hbtp]
+\begin{figure}[hbtp!]
 \centering
 \begin{tikzpicture}
 [scale=0.9,blackarrow/.style={->,black,very thick},blueline/.style={->,blue,very thick},redline/.style={red,very thick},blackline/.style={black,very thick},greenline/.style={green,very thick}]
@@ -420,7 +437,12 @@ Figure~\ref{fig:dryair} shows the default connections.\\
 \label{fig:dryair}
 \end{figure}
 
-\afterpage{\null\newpage} % this line might go away...
+From the dry air outlet on the lab wall next to the door, a hose runs towards the probe station.
+It is connected to a t-piece, from which one line goes directly to the cold box, another to the chiller control unit.
+From the chiller control unit, a line then goes into the cold box towards the chuck.
+Figure~\ref{fig:dryair} shows the default connections.\\
+
+%\afterpage{\null\newpage} % this line might go away...
 \newpage
 
 \section{Performing Measurements and Using the Read-Out Software}
@@ -501,9 +523,9 @@ It defaults to the first command-line argument.
 All measurements are saved with the file name corresponding to date and time of the begin of the measurement.\\
 
 The CV tab shown in figure~\ref{fig:softwareopencv} looks similar, with the difference that the fields for current compliance and guard ring measurement are substituted by fields where the frequency parameters can be set.
-The first one sets the measurement frequency of the Agilent E4980A, the {\tt Voltage level} field sets the AC voltage.\\
+The first one sets the measurement frequency of the Agilent E4980A, the {\tt AC Voltage level} field sets the AC voltage.\\
 
-{\bf Beware that in CV measurements, there is no software current compliance!}\footnote{This is because the large internal resistance of the Agilent E4980A distorts the current measurement of the Keithley 6517B.}\\
+{\bf Beware that in CV and Strip measurements, there is no software current compliance!}\footnote{This is because the large internal resistance of the Agilent E4980A and the CV/IV box distorts the current measurement of the Keithley 6517B.}\\
 
 You should therefore first do an IV measurement to verify that your desired voltage range is safe for your DUT.\\
 
@@ -559,7 +581,7 @@ Then switch the vacuum off and carefully remove your DUT before closing the cold
 \subsection{Installing the Software}
 \label{sec:installation}
 
-The software has been tested to run on Ubuntu 18.04, Raspbian Strech, CERN CentOS 7 and Microsoft Windows 7.
+The software has been tested to run on Ubuntu 18.04, Raspbian Stretch, CERN CentOS 7 and Microsoft Windows 7.
 It is already preinstalled on {\tt fhlprobest.desy.de}.
 
 \subsubsection{Ubuntu 18.04}
@@ -626,7 +648,7 @@ Then install the python packages, substituting {\tt pip2} for {\tt pip3} and run
 The {\tt Qt4} packages can't be installed by {\tt pip}, but have to be installed with {\tt sudo apt-get install python-qt4} for {\tt Python 2.7} and {\tt sudo apt-get install python3-pyqt4} for {\tt Python 3}.
 \end{itemize}
 
-\subsubsection{Raspbian Strech}
+\subsubsection{Raspbian Stretch}
 
 Currently, {\tt Qt5} is not available via the package manager, so the easiest way to run the software is with {\tt Python 2} using {\tt Qt 4}.
 You will need to install some packages
@@ -780,9 +802,9 @@ from the {\tt Anaconda prompt} or from the Windows command line.
 
 To recompile the user manual, you need a working latex installation with some additional packages.
 
-\subsubsection{Ubuntu 18.04 and Raspbian Strech}
+\subsubsection{Ubuntu 18.04 and Raspbian Stretch}
 
-On Ubuntu 18.04 and Raspbian Strech you need to install several {\tt latex} packages via
+On Ubuntu 18.04 and Raspbian Stretch you need to install several {\tt latex} packages via
 
 \medskip
 \begin{lstlisting}
