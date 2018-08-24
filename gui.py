@@ -66,13 +66,29 @@ class FreqGroupWidget ( QtW.QGroupBox ) :
 		form.addRow ( u"Frequency", self._freq_spin )
 
 		self._volt_spin = createSpin ( 0, 20, 0.5, 1, 2, u" V" )
-		form.addRow(u"AC Voltage level", self._volt_spin )
+		form.addRow ( u"AC Voltage level", self._volt_spin )
 
 	def getSettings ( self ):
 		freq = self._freq_spin.value ( ) * 1e3
 		volt = self._volt_spin.value ( )
 
 		return ( freq, volt )
+
+class StripGroupWidget ( QtW.QGroupBox ) :
+	def __init__ ( self ) :
+		super ( StripGroupWidget, self ) .__init__ ( u"Strip Measurement" )
+
+		form = QtW.QFormLayout ( )
+		self.setLayout ( form )
+
+		self._select_r = QtW.QComboBox ( )
+		self._select_r.addItems ( ["Capacitance", "Resistance/Impedance"] )
+		form.addRow ( u"Measurement Type", self._select_r )
+
+	def getSettings ( self ):
+		select = self._select_r.currentText ( )
+
+		return ( select )
 
 class DirectoryLayout ( QtW.QHBoxLayout ):
 	def __init__ ( self, directory, parent_win ) :
@@ -142,6 +158,11 @@ class IvTab ( QtW.QWidget ) :
 			self._parent_win.showErrorDialog ( u"Measurement is currently running." )
 			return
 
+		if not options.debug :
+			check = QtW.QMessageBox.question ( self, u"Warning", u"Is the CV/IV box set to IV?", QtW.QMessageBox.Yes, QtW.QMessageBox.No )
+			if check == QtW.QMessageBox.No :
+				return
+
 		start, end, step, sleeptime = self._voltsrc.getVoltages ( )
 		if step <= 0 :
 			self._parent_win.showErrorDialog ( u"Abs step needs to be positive." )
@@ -179,7 +200,7 @@ class IvTab ( QtW.QWidget ) :
 			else :
 				kei6485_devname = None
 		except VisaIOError :
-			self._parent_win.showErrorDialog ( u"Could not connect to GPIB devices." )
+			self._parent_win.showErrorDialog ( u"Could not connect to GPIB/serial devices." )
 			return
 
 		args = MeasurementArgs ( u"IV", kei6517b_devname, kei6485_devname, None, start, end, step, compcurrent, guardring, None, None, None, sleeptime, output_dir )
@@ -222,6 +243,11 @@ class CvTab ( QtW.QWidget ) :
 			self._parent_win.showErrorDialog ( u"Measurement is currently running." )
 			return
 
+		if not options.debug :
+			check = QtW.QMessageBox.question ( self, u"Warning", u"Is the CV/IV box set to both CV and External?", QtW.QMessageBox.Yes, QtW.QMessageBox.No )
+			if check == QtW.QMessageBox.No :
+				return
+
 		start, end, step, sleeptime = self._voltsrc.getVoltages ( )
 		if step <= 0 :
 			self._parent_win.showErrorDialog ( u"Abs step needs to be positive." )
@@ -257,7 +283,7 @@ class CvTab ( QtW.QWidget ) :
 				self._parent_win.showErrorDialog ( u"Could not find Agilent E4980A." )
 				return
 		except VisaIOError :
-			self._parent_win.showErrorDialog ( u"Could not connect to GPIB devices." )
+			self._parent_win.showErrorDialog ( u"Could not connect to GPIB/serial devices." )
 			return
 
 		args = MeasurementArgs ( u"CV", kei6517b_devname, None, agie4980a_devname, start, end, step, None, None, None, freq, volt, sleeptime, output_dir )
@@ -278,10 +304,12 @@ class StripTab ( QtW.QWidget ) :
 		self._freqsettings = FreqGroupWidget ( )
 		vbox.addWidget ( self._freqsettings )
 
-		hbox = QtW.QHBoxLayout ( )
-		vbox.addLayout ( hbox )
-		self._select_r = QtW.QCheckBox ( u"Resistance Measurement" )
-		hbox.addWidget ( self._select_r )
+		#hbox = QtW.QHBoxLayout ( )
+		#vbox.addLayout ( hbox )
+		#self._select_r = QtW.QCheckBox ( u"Resistance Measurement" )
+		#hbox.addWidget ( self._select_r )
+		self._stripsettings = StripGroupWidget ( )
+		vbox.addWidget ( self._stripsettings )
 
 		vbox.addStretch ( 1 )
 
@@ -302,6 +330,11 @@ class StripTab ( QtW.QWidget ) :
 			self._parent_win.showErrorDialog ( u"Measurement is currently running." )
 			return
 
+		if not options.debug :
+			check = QtW.QMessageBox.question ( self, u"Warning", u"Is the CV/IV box set to both IV and C<sub>int</sub>/R<sub>int</sub>?", QtW.QMessageBox.Yes, QtW.QMessageBox.No )
+			if check == QtW.QMessageBox.No :
+				return
+
 		start, end, step, sleeptime = self._voltsrc.getVoltages ( )
 		if step <= 0 :
 			self._parent_win.showErrorDialog ( u"Abs step needs to be positive." )
@@ -321,7 +354,10 @@ class StripTab ( QtW.QWidget ) :
 			self._parent_win.showErrorDialog ( u"AC voltage must be between 0 V and 20 V." )
 			return
 
-		resistance = self._select_r.isChecked ( )
+		if ( self._stripsettings.getSettings ( ) == u"Resistance/Impedance" ) :
+			resistance = True
+		else :
+			resistance = False
 
 		output_dir = self._browse_layout.getOutputDir ( )
 		if not os.path.isdir ( output_dir ) or not os.access ( output_dir, os.W_OK ) :
@@ -339,7 +375,7 @@ class StripTab ( QtW.QWidget ) :
 				self._parent_win.showErrorDialog ( u"Could not find Agilent E4980A." )
 				return
 		except VisaIOError :
-			self._parent_win.showErrorDialog ( u"Could not connect to GPIB devices." )
+			self._parent_win.showErrorDialog ( u"Could not connect to GPIB/serial devices." )
 			return
 
 		args = MeasurementArgs ( u"Strip", kei6517b_devname, None, agie4980a_devname, start, end, step, None, None, resistance, freq, volt, sleeptime, output_dir )
@@ -349,7 +385,7 @@ class MainWindow ( QtW.QMainWindow ) :
 	def __init__ ( self, output_dir ) :
 		super ( MainWindow, self ) .__init__ ( )
 
-		self.setWindowTitle ( u"Probe Station Measurement Software" )
+		self.setWindowTitle ( u"Probe Station Software" )
 
 		self._tabwidget = QtW.QTabWidget ( )
 		self.setCentralWidget ( self._tabwidget )
