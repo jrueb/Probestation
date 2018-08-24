@@ -24,7 +24,7 @@ class KeithleyMeter ( object ) :
 			raise ValueError ( "Resource not found {}" .format ( resource_name ) )
 		if resource_name.startswith ( "ASRL" ) :
 			logger.debug ( "  Opening {} with py-visa." .format ( resource_name ) )
-			self._res = rm2.open_resource ( resource_name, baud_rate = 19200, data_bits = 8 )
+			self._res = rm2.open_resource ( resource_name, baud_rate = 19200, data_bits = 8, timeout = 5000 )
 		else :
 			logger.debug ( "  Opening {} with ni-visa." .format ( resource_name ) )
 			self._res = rm1.open_resource ( resource_name )

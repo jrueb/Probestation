@@ -71,7 +71,7 @@ class StripMeasurementThread ( MeasurementThread ) :
 				if not args.resistance :
 					header = OrderedDict ( [ ( 'kei6517b_srcvoltage', None ), ( 'agie4980a_capacitance', None ) ] )
 				else :
-					header = OrderedDict ( [ ( 'kei6517b_srcvoltage', None ), ( 'agie4980a_resistance', None ) ] )
+					header = OrderedDict ( [ ( 'kei6517b_srcvoltage', None ), ( 'agie4980a_resistance', None ), ( 'agie4980a_impedance', None ) ] )
 				writer = csv.DictWriter ( f, header, extrasaction = "ignore" )
 				writer.writeheader ( )
 
@@ -82,7 +82,6 @@ class StripMeasurementThread ( MeasurementThread ) :
 
 					if not args.resistance :
 						line = agilentE4980A.get_reading ( )
-						print ( "got", line )
 						meas = agilent.parse_cgv ( line, "agie4980a" )
 						meas["kei6517b_srcvoltage"] = keivolt
 						if ( not "kei6517b_srcvoltage" in meas or not "agie4980a_capacitance" in meas or not "agie4980a_conductance" in meas or meas["kei6517b_srcvoltage"] is None or meas["agie4980a_capacitance"] is None or meas["agie4980a_conductance"] is None ) :
@@ -92,19 +91,18 @@ class StripMeasurementThread ( MeasurementThread ) :
 
 					else :
 						line = agilentE4980A.get_resistance ( )
-						print ( "got", line )
 						meas = agilent.parse_res ( line, "agie4980a" )
 						meas["kei6517b_srcvoltage"] = keivolt
-						if ( not "kei6517b_srcvoltage" in meas or not "agie4980a_resistance1" in meas or not "agie4980a_resistance2" in meas or meas["kei6517b_srcvoltage"] is None or meas["agie4980a_resistance1"] is None or meas["agie4980a_resistance2"] is None ) :
+						if ( not "kei6517b_srcvoltage" in meas or not "agie4980a_resistance" in meas or not "agie4980a_impedance" in meas or meas["kei6517b_srcvoltage"] is None or meas["agie4980a_resistance"] is None or meas["agie4980a_impedance"] is None ) :
 							raise IOError ( "Got invalid reading from device" )
 
-						print ( "VSrc = {: 10.4g} V; R = {: 10.4g} O" .format( meas["kei6517b_srcvoltage"], ( ( fabs(meas["agie4980a_resistance1"] ) + fabs ( meas["agie4980a_resistance2"] ) ) / 2.0 ) ) )
+						print ( "VSrc = {: 10.4g} V; R = {: 10.4g} O" .format( meas["kei6517b_srcvoltage"], meas["agie4980a_resistance"], meas["agie4980a_impedance"] ) )
 
 					writer.writerow ( meas )
 					if not args.resistance :
 						self.measurement_ready.emit ( ( meas["kei6517b_srcvoltage"], meas["agie4980a_capacitance"] ) )
 					else :
-						self.measurement_ready.emit ( ( meas["kei6517b_srcvoltage"], ( ( fabs ( meas["agie4980a_resistance1"] ) + fabs ( meas["agie4980a_resistance2"] ) ) / 2.0 ) ) )
+						self.measurement_ready.emit ( ( meas["kei6517b_srcvoltage"], meas["agie4980a_resistance"], meas["agie4980a_impedance"] ) )
 
 					if self._exiting :
 						break
@@ -130,10 +128,10 @@ class StripMeasurementThread ( MeasurementThread ) :
 class StripMeasurementWindow ( MeasurementWindow ) :
 	def __init__ ( self, parent, args ) :
 		thread = StripMeasurementThread ( args )
-		super ( StripMeasurementWindow, self ) .__init__ ( parent, 1, args, thread )
+		super ( StripMeasurementWindow, self ) .__init__ ( parent, 2 if args.resistance else 1, args, thread )
 
 		if not args.resistance :
 			self._ylabel = [u"Capacitance in $\\mathrm{F}$", u"Conductance in $\\mathrm{S}$"]
 		else:
-			self._ylabel = [u"Resistance in $\\mathrm{Ohm}$"]
+			self._ylabel = [u"Resistance in $\\mathrm{Ohm}$", u"Impedance in $\\mathrm{Ohm}$"]
 		self.setWindowTitle ( u"Strip measurement" )

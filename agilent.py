@@ -22,7 +22,7 @@ class AgilentMeter ( object ) :
 			raise ValueError ( u"Resource not found {}" .format ( resource_name ) )
 		if resource_name.startswith ( u"ASRL" ) :
 			logger.debug ( u"  Opening {} with py-visa." .format ( resource_name ) )
-			self._res = rm2.open_resource ( resource_name, baud_rate = 19200, data_bits = 8 )
+			self._res = rm2.open_resource ( resource_name, baud_rate = 19200, data_bits = 8, timeout = 5000 )
 		else :
 			logger.debug ( u"  Opening {} with ni-visa." .format ( resource_name ) )
 			self._res = rm1.open_resource ( resource_name )
@@ -87,8 +87,8 @@ def parse_cgv ( line, devname ) :
 def parse_res ( line, devname ) :
 	line = line.split ( u"," )
 	ret = {}
-	ret[u"{}_resistance1" .format ( devname ) ] = float ( line[0] )
-	ret[u"{}_resistance2" .format ( devname ) ] = float ( line[1] )
+	ret[u"{}_resistance" .format ( devname ) ] = float ( line[0] )
+	ret[u"{}_impedance" .format ( devname ) ] = float ( line[1] )
 	return ret
 
 if __name__ == u"__main__" :
