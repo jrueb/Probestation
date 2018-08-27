@@ -67,7 +67,7 @@ class IvMeasurementThread ( MeasurementThread ) :
 				if not keith6485 is None :
 					header = OrderedDict ( [ ( 'kei6517b_srcvoltage', None ), ( 'kei6517b_current', None ), ( 'kei6485_current', None ) ] )
 				else :
-					header = OrderedDict ( [ ( 'kei6517b_current', None ), ( 'kei6517b_srcvoltage', None ) ] )
+					header = OrderedDict ( [ ( 'kei6517b_srcvoltage', None ), ( 'kei6517b_current', None ) ] )
 				writer = csv.DictWriter ( f, fieldnames = header, extrasaction = u"ignore" )
 				writer.writeheader ( )
 

@@ -65,7 +65,7 @@ class CvMeasurementThread ( MeasurementThread ) :
 				mode += 'b'
 
 			with open ( output_csv, mode ) as f :
-				header = OrderedDict ( [ ( 'kei6517b_srcvoltage', None ), ( 'agie4980a_capacitance', None ), ('agie4980a_conductance', None ) ] )
+				header = OrderedDict ( [ ( 'kei6517b_srcvoltage', None ), ( 'agie4980a_capacitance', None ), ('agie4980a_conductance', None ), ( 'kei6517b_current', None ) ] )
 				writer = csv.DictWriter ( f, fieldnames = header, extrasaction = u"ignore" )
 				writer.writeheader ( )
 
@@ -82,9 +82,9 @@ class CvMeasurementThread ( MeasurementThread ) :
 					compline = keith6517B.get_reading ( )
 					meas.update ( keithley.parse_iv ( compline, u"kei6517b" ) )
 
-					print ( u"VSrc = {: 10.4g} V; C = {: 10.4g} F; G = {: 10.4g} S" .format ( meas[u"kei6517b_srcvoltage"], meas[u"agie4980a_capacitance"], meas[u"agie4980a_conductance"] ) )
+					print ( u"VSrc = {: 10.4g} V; C = {: 10.4g} F; G = {: 10.4g} S; I = {: 10.4g} A" .format ( meas[u"kei6517b_srcvoltage"], meas[u"agie4980a_capacitance"], meas[u"agie4980a_conductance"], meas[u"kei6517b_current"] ) )
 
-					if ( abs ( meas[u"kei6517b_current"] ) >= args.compcurrent or abs ( meas[u"kei6485_current"] ) >= args.compcurrent ) :
+					if ( abs ( meas[u"kei6517b_current"] ) >= args.compcurrent ) :
 						self.error_signal.emit ( u"Compliance current reached" )
 						print ( u"Compliance current reached" )
 						#Instant turn off

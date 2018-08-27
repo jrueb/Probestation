@@ -283,7 +283,7 @@ class CvTab ( QtW.QWidget ) :
 			return
 
 		# CV box adds 1KOhm -> compcurrent goes down...
-		args = MeasurementArgs ( u"CV", kei6517b_devname, None, agie4980a_devname, start, end, step, compcurrent / 1000.0, None, None, freq, volt, sleeptime, output_dir )
+		args = MeasurementArgs ( u"CV", kei6517b_devname, None, agie4980a_devname, start, end, step, compcurrent * 1000.0, None, None, freq, volt, sleeptime, output_dir )
 		self._parent_win.startMeasurement ( args )
 
 class StripTab ( QtW.QWidget ) :
@@ -332,7 +332,7 @@ class StripTab ( QtW.QWidget ) :
 			if check == QtW.QMessageBox.No :
 				return
 
-		start, end, step, sleeptime = self._voltsrc.getVoltages ( )
+		start, end, step, sleeptime, compcurrent = self._voltsrc.getVoltages ( )
 		if step <= 0 :
 			self._parent_win.showErrorDialog ( u"Abs step needs to be positive." )
 			return
@@ -380,7 +380,7 @@ class StripTab ( QtW.QWidget ) :
 			return
 
 		# CV box adds 1KOhm -> compcurrent goes down...
-		args = MeasurementArgs ( u"Strip", kei6517b_devname, None, agie4980a_devname, start, end, step, compcurrent / 1000.0, None, resistance, freq, volt, sleeptime, output_dir )
+		args = MeasurementArgs ( u"Strip", kei6517b_devname, None, agie4980a_devname, start, end, step, compcurrent * 1000.0, None, resistance, freq, volt, sleeptime, output_dir )
 		self._parent_win.startMeasurement ( args )
 
 class MainWindow ( QtW.QMainWindow ) :

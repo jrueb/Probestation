@@ -69,9 +69,9 @@ class StripMeasurementThread ( MeasurementThread ) :
 
 			with open ( output_csv, mode ) as f :
 				if not args.resistance :
-					header = OrderedDict ( [ ( 'kei6517b_srcvoltage', None ), ( 'agie4980a_capacitance', None ) ] )
+					header = OrderedDict ( [ ( 'kei6517b_srcvoltage', None ), ( 'agie4980a_capacitance', None ), ( 'kei6517b_current', None ) ] )
 				else :
-					header = OrderedDict ( [ ( 'kei6517b_srcvoltage', None ), ( 'agie4980a_resistance', None ), ( 'agie4980a_impedance', None ) ] )
+					header = OrderedDict ( [ ( 'kei6517b_srcvoltage', None ), ( 'agie4980a_resistance', None ), ( 'agie4980a_impedance', None ), ( 'kei6517b_current', None ) ] )
 				writer = csv.DictWriter ( f, header, extrasaction = "ignore" )
 				writer.writeheader ( )
 
@@ -102,7 +102,7 @@ class StripMeasurementThread ( MeasurementThread ) :
 
 						print ( "VSrc = {: 10.4g} V; R = {: 10.4g} O" .format( meas["kei6517b_srcvoltage"], meas["agie4980a_resistance"], meas["agie4980a_impedance"] ) )
 
-					if ( abs ( meas[u"kei6517b_current"] ) >= args.compcurrent or abs ( meas[u"kei6485_current"] ) >= args.compcurrent ) :
+					if ( abs ( meas[u"kei6517b_current"] ) >= args.compcurrent ) :
 						self.error_signal.emit ( u"Compliance current reached" )
 						print ( u"Compliance current reached" )
 						#Instant turn off
