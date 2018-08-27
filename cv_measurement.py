@@ -79,8 +79,17 @@ class CvMeasurementThread ( MeasurementThread ) :
 					meas[u"kei6517b_srcvoltage"] = keivolt
 					if ( not u"kei6517b_srcvoltage" in meas or not u"agie4980a_capacitance" in meas or not u"agie4980a_conductance" in meas or meas[u"kei6517b_srcvoltage"] is None or meas[u"agie4980a_capacitance"] is None or meas[u"agie4980a_conductance"] is None ) :
 						raise IOError ( u"Got invalid reading from device" )
+					compline = keith6517B.get_reading ( )
+					meas.update ( keithley.parse_iv ( compline, u"kei6517b" ) )
 
 					print ( u"VSrc = {: 10.4g} V; C = {: 10.4g} F; G = {: 10.4g} S" .format ( meas[u"kei6517b_srcvoltage"], meas[u"agie4980a_capacitance"], meas[u"agie4980a_conductance"] ) )
+
+					if ( abs ( meas[u"kei6517b_current"] ) >= args.compcurrent or abs ( meas[u"kei6485_current"] ) >= args.compcurrent ) :
+						self.error_signal.emit ( u"Compliance current reached" )
+						print ( u"Compliance current reached" )
+						#Instant turn off
+						keith6517B.set_output_state ( False )
+						self._exiting = True
 
 					writer.writerow ( meas )
 					self.measurement_ready.emit ( ( meas[u"kei6517b_srcvoltage"], 1 / meas[u"agie4980a_capacitance"] ** 2 ) )

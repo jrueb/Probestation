@@ -86,6 +86,8 @@ class StripMeasurementThread ( MeasurementThread ) :
 						meas["kei6517b_srcvoltage"] = keivolt
 						if ( not "kei6517b_srcvoltage" in meas or not "agie4980a_capacitance" in meas or not "agie4980a_conductance" in meas or meas["kei6517b_srcvoltage"] is None or meas["agie4980a_capacitance"] is None or meas["agie4980a_conductance"] is None ) :
 							raise IOError ( "Got invalid reading from device" )
+						compline = keith6517B.get_reading ( )
+						meas.update ( keithley.parse_iv ( compline, u"kei6517b" ) )
 
 						print ( "VSrc = {: 10.4g} V; C = {: 10.4g} F; G = {: 10.4g} S" .format ( meas["kei6517b_srcvoltage"], meas["agie4980a_capacitance"], meas["agie4980a_conductance"] ) )
 
@@ -95,8 +97,17 @@ class StripMeasurementThread ( MeasurementThread ) :
 						meas["kei6517b_srcvoltage"] = keivolt
 						if ( not "kei6517b_srcvoltage" in meas or not "agie4980a_resistance" in meas or not "agie4980a_impedance" in meas or meas["kei6517b_srcvoltage"] is None or meas["agie4980a_resistance"] is None or meas["agie4980a_impedance"] is None ) :
 							raise IOError ( "Got invalid reading from device" )
+						compline = keith6517B.get_reading ( )
+						meas.update ( keithley.parse_iv ( compline, u"kei6517b" ) )
 
 						print ( "VSrc = {: 10.4g} V; R = {: 10.4g} O" .format( meas["kei6517b_srcvoltage"], meas["agie4980a_resistance"], meas["agie4980a_impedance"] ) )
+
+					if ( abs ( meas[u"kei6517b_current"] ) >= args.compcurrent or abs ( meas[u"kei6485_current"] ) >= args.compcurrent ) :
+						self.error_signal.emit ( u"Compliance current reached" )
+						print ( u"Compliance current reached" )
+						#Instant turn off
+						keith6517B.set_output_state ( False )
+						self._exiting = True
 
 					writer.writerow ( meas )
 					if not args.resistance :

@@ -41,19 +41,22 @@ class VoltsrcGroupWidget ( QtW.QGroupBox ) :
 		self._end_spin = createSpin ( -1000, 1000, 0.01, -1, 2, u" V", u"Source voltage to end with" )
 		self._step_spin = createSpin ( 0, 1000, 0.01, 0.1, 2, u" V", u"Source voltage difference between taking measurements" )
 		self._sleep_spin = createSpin ( 0, 100, 1, 1, 1, u" s", u"Time to wait between setting the source voltage and taking the measurement" )
+		self._compliance_spin = createSpin ( 0.1, 1000, 1, 10, 1, u" \u03BCA", u"If the compliance current is reached by one of the measured currents, the voltage source is immediately turned off." )
 
 		form.addRow ( u"Start voltage", self._start_spin )
 		form.addRow ( u"End voltage", self._end_spin )
 		form.addRow ( u"Abs step", self._step_spin )
 		form.addRow ( u"Wait time", self._sleep_spin )
+		form.addRow ( u"Abs compliance current", self._compliance_spin )
 
 	def getVoltages ( self ) :
 		start = self._start_spin.value ( )
 		end = self._end_spin.value ( )
 		step = self._step_spin.value ( )
 		sleeptime = self._sleep_spin.value ( )
+		compcurrent = self._compliance_spin.value ( ) * 1e-6
 
-		return ( start, end, step, sleeptime )
+		return ( start, end, step, sleeptime, compcurrent )
 
 class FreqGroupWidget ( QtW.QGroupBox ) :
 	def __init__ ( self ) :
@@ -129,13 +132,6 @@ class IvTab ( QtW.QWidget ) :
 
 		hbox = QtW.QHBoxLayout ( )
 		vbox.addLayout ( hbox )
-		compliance_label = QtW.QLabel ( u"Abs compliance current: " )
-		hbox.addWidget ( compliance_label )
-		self._compliance_spin = createSpin ( 0.1, 1000, 1, 10, 1, u" \u03BCA", u"If the compliance current is reached by one of the measured currents, the voltage source is immediately turned off." )
-		hbox.addWidget ( self._compliance_spin )
-
-		hbox = QtW.QHBoxLayout ( )
-		vbox.addLayout ( hbox )
 		self._guardring_cb = QtW.QCheckBox ( u"Enable guard ring measurement" )
 		hbox.addWidget ( self._guardring_cb )
 
@@ -163,7 +159,7 @@ class IvTab ( QtW.QWidget ) :
 			if check == QtW.QMessageBox.No :
 				return
 
-		start, end, step, sleeptime = self._voltsrc.getVoltages ( )
+		start, end, step, sleeptime, compcurrent = self._voltsrc.getVoltages ( )
 		if step <= 0 :
 			self._parent_win.showErrorDialog ( u"Abs step needs to be positive." )
 			return
@@ -176,7 +172,6 @@ class IvTab ( QtW.QWidget ) :
 
 		guardring = self._guardring_cb.isChecked ( )
 
-		compcurrent = self.getComplianceCurrent ( )
 		if compcurrent <= 0 :
 			self._parent_win.showErrorDialog ( u"Compliance current needs to be positive." )
 			return
@@ -205,9 +200,6 @@ class IvTab ( QtW.QWidget ) :
 
 		args = MeasurementArgs ( u"IV", kei6517b_devname, kei6485_devname, None, start, end, step, compcurrent, guardring, None, None, None, sleeptime, output_dir )
 		self._parent_win.startMeasurement ( args )
-
-	def getComplianceCurrent ( self ) :
-		return self._compliance_spin.value ( ) * 1e-6
 
 class CvTab ( QtW.QWidget ) :
 	def __init__ ( self, parent_win, output_dir ) :
@@ -248,7 +240,7 @@ class CvTab ( QtW.QWidget ) :
 			if check == QtW.QMessageBox.No :
 				return
 
-		start, end, step, sleeptime = self._voltsrc.getVoltages ( )
+		start, end, step, sleeptime, compcurrent = self._voltsrc.getVoltages ( )
 		if step <= 0 :
 			self._parent_win.showErrorDialog ( u"Abs step needs to be positive." )
 			return
@@ -265,6 +257,10 @@ class CvTab ( QtW.QWidget ) :
 			return
 		if not 0 <= volt <= 20 :
 			self._parent_win.showErrorDialog ( u"AC voltage must be between 0 V and 20 V." )
+			return
+
+		if compcurrent <= 0 :
+			self._parent_win.showErrorDialog ( u"Compliance current needs to be positive." )
 			return
 
 		output_dir = self._browse_layout.getOutputDir ( )
@@ -286,7 +282,8 @@ class CvTab ( QtW.QWidget ) :
 			self._parent_win.showErrorDialog ( u"Could not connect to GPIB/serial devices." )
 			return
 
-		args = MeasurementArgs ( u"CV", kei6517b_devname, None, agie4980a_devname, start, end, step, None, None, None, freq, volt, sleeptime, output_dir )
+		# CV box adds 1KOhm -> compcurrent goes down...
+		args = MeasurementArgs ( u"CV", kei6517b_devname, None, agie4980a_devname, start, end, step, compcurrent / 1000.0, None, None, freq, volt, sleeptime, output_dir )
 		self._parent_win.startMeasurement ( args )
 
 class StripTab ( QtW.QWidget ) :
@@ -359,6 +356,10 @@ class StripTab ( QtW.QWidget ) :
 		else :
 			resistance = False
 
+		if compcurrent <= 0 :
+			self._parent_win.showErrorDialog ( u"Compliance current needs to be positive." )
+			return
+
 		output_dir = self._browse_layout.getOutputDir ( )
 		if not os.path.isdir ( output_dir ) or not os.access ( output_dir, os.W_OK ) :
 			self._parent_win.showErrorDialog ( u"Invalid output directory." )
@@ -378,7 +379,8 @@ class StripTab ( QtW.QWidget ) :
 			self._parent_win.showErrorDialog ( u"Could not connect to GPIB/serial devices." )
 			return
 
-		args = MeasurementArgs ( u"Strip", kei6517b_devname, None, agie4980a_devname, start, end, step, None, None, resistance, freq, volt, sleeptime, output_dir )
+		# CV box adds 1KOhm -> compcurrent goes down...
+		args = MeasurementArgs ( u"Strip", kei6517b_devname, None, agie4980a_devname, start, end, step, compcurrent / 1000.0, None, resistance, freq, volt, sleeptime, output_dir )
 		self._parent_win.startMeasurement ( args )
 
 class MainWindow ( QtW.QMainWindow ) :
