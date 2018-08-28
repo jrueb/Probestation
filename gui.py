@@ -71,6 +71,7 @@ class GuardMeasWidget ( QtW.QGroupBox ) :
 
 	def getStatus ( self ) :
 		guardring = self._guardring_cb.isChecked ( )
+		return ( guardring )
 
 class FreqGroupWidget ( QtW.QGroupBox ) :
 	def __init__ ( self ) :
