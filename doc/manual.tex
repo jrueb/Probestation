@@ -139,7 +139,7 @@ When moving the chuck, the probe needles should be well away from the chuck surf
 There are four probe needles on manipulators, sitting on magnetic rails in the cold box.
 One needle is for the pad/high voltage connection, one needle for the guard ring connection.
 Both these needles are clearly marked.
-The two remaining needles are spares or can be used for alternative measurements.
+The two remaining needles are for strip measurements.
 Figure~\ref{fig:needle} shows a manipulator and how to adjust its position.
 The probe needles should be handled extremely carefully, as they can break very easily.
 They should be far away from any moving objects.
@@ -195,31 +195,7 @@ After a measurement, the Keithley 6517B should be turned off again.\\
 The Agilent E4980A LCR-Meter is used for capacitance measurements.
 Via the CV/IV box it can be switched into the connection between the Keithley 6517B and the DUT/chuck.
 A manual can be downloaded from~\cite{ref:agilentref}.
-The CV/IV box shown in figure~\ref{fig:cvivbox} is plugged into the front of the Agilent E4980A and allows the user to select between IV (bottom switch to top) and CV (bottom switch to bottom) measurement modes.
-The top switch can be used to connect (${\rm C_{int}}$) or disconnect (${\rm R_{int}}$) the Agilent E4980A to the top row connectors.
-Switching should {\bf never} be done during a measurement or whilst a voltage is applied.
-Note that if the CV/IV box is in CV mode, the current measurement of the Keithley 6517B will no longer be accurate.
-This is because of the large internal resistance of the Agilent E4980A and the CV/IV box.
-Thus, the following operation modes are available:\\
-
-\begin{itemize}
-\item{{\bf IV Mode:\\}}
-The bottom switch is in the top position ({\tt IV}).
-The position of the top switch is not relevant as only the Keithley 6517B and optionally the Keithley 6485 are used.
-
-\item{{\bf CV Mode:\\}}
-The bottom switch is in the bottom position ({\tt CV}), the top switch is in the top position (${\tt R_{int}}$).
-The Keithley 6517B and the Agilent E4980A are used via a single probe needle.
-
-\item{${\rm {\bf C_{int}}}$ {\bf Mode:\\}}
-The bottom switch is in the top position ({\tt IV}), the top switch is in the bottom position (${\tt C_{int}}$).
-The Keithley 6517B and the Agilent E4980A are used via different probe needles.
-
-\item{${\rm {\bf R_{int}}}$ {\bf Mode:\\}}
-The bottom switch is in the top position ({\tt IV}), the top switch is in the top position (${\tt R_{int}}$).
-The Keithley 6517B and an optional external device are usable.
-\end{itemize}
-
+The CV/IV box shown in figure~\ref{fig:cvivbox} is plugged into the front of the Agilent E4980A and allows the user to select between IV (bottom switch to top) and CV (bottom switch to bottom) measurement modes.\\
 
 \begin{figure}[hbtp]
 \centering
@@ -235,6 +211,38 @@ The Keithley 6517B and an optional external device are usable.
 \caption[The CV/IV Box]{Close-up of the CV/IV Box. A description of all the connections can be found in section~\ref{sec:connections}.}
 \label{fig:cvivbox}
 \end{subfigure}
+\end{figure}
+
+A circuit diagram of the box is shown in figure~\ref{fig:cvivboxschematic}.
+The top switch can be used to connect (${\rm C_{int}}$) or disconnect (${\rm R_{int}}$) the Agilent E4980A to the top row connectors.
+Switching should {\bf never} be done during a measurement or whilst a voltage is applied.
+Note that if the CV/IV box is in CV mode, the current measurement of the Keithley 6517B will no longer be accurate.
+This is because of the large internal resistance of the Agilent E4980A and the CV/IV box.
+Thus, the following operation modes are available:\\
+
+\begin{itemize}
+\item{{\bf IV Mode:\\}}
+The bottom switch is in the top position ({\tt IV}).
+The position of the top switch is not relevant as only the Keithley 6517B and optionally the Keithley 6485 are used.
+
+\item{{\bf CV Mode:\\}}
+The bottom switch is in the bottom position ({\tt CV}), the top switch is in the top position ({\tt External}).
+The Keithley 6517B and the Agilent E4980A are used via a single probe needle.
+
+\item{${\rm {\bf C_{int}}}$ or ${\rm {\bf R_{int}}}$ {\bf Mode:\\}}
+The bottom switch is in the top position ({\tt IV}), the top switch is in the bottom position (${\tt C_{int}}$/${\tt R_{int}}$).
+The Keithley 6517B and the Agilent E4980A are used via different probe needles.
+
+\item{{\bf External Mode:\\}}
+The bottom switch is in the top position ({\tt IV}), the top switch is in the top position ({\tt External}).
+The Keithley 6517B is used to provide bias voltage, an optional external device is usable via the spare inputs to the CV/IV box.
+\end{itemize}
+
+\begin{figure}[hbtp]
+\includegraphics[width=\linewidth,page=1]{pictures/cvivbox.pdf}
+\captionsetup{width=.8\linewidth}%
+\captionof{figure}[Schematic of the CV/IV Box]{Schematic of the CV/IV Box~\cite{ref:cvivboxschem}.}
+\label{fig:cvivboxschematic}
 \end{figure}
 
 \subsection{Keithley 6485}
@@ -442,7 +450,7 @@ It is connected to a t-piece, from which one line goes directly to the cold box,
 From the chiller control unit, a line then goes into the cold box towards the chuck.
 Figure~\ref{fig:dryair} shows the default connections.\\
 
-%\afterpage{\null\newpage} % this line might go away...
+\afterpage{\null\newpage} % this line might go away...
 \newpage
 
 \section{Performing Measurements and Using the Read-Out Software}
@@ -466,8 +474,10 @@ If needed, operate the chiller via the touch panel of the control unit and wait 
 \label{sec:ivsetup}
 
 By operating the probe needles as described in figure~\ref{fig:needle}, carefully place the {\tt HVlow} needle on the DUT surface.
+On most DUTs you will want to contact the bias ring.
 You can then switch on the Keithley 6517B with its switch on the front side of the device.
-Set the switch on the CV/IV box to the top (IV) position.
+Set the bottom switch on the CV/IV box to the top (IV) position.
+The state of the top switch is not important.
 For a simple IV measurement, above steps are sufficient.
 To additionally measure the guard ring current, place the {\tt Iguard} needle on the guard ring of the DUT.
 You can then switch on the Keithley 6485 with its front-side switch.\\
@@ -477,12 +487,29 @@ You can then switch on the Keithley 6485 with its front-side switch.\\
 
 For a CV measurement, turn on the Agilent E4980A with its front-side switch and wait for it to warm up.
 Before connecting any probe needles, you should perform an open measurement for calibration.
-To do this, press the {\tt Meas Setup} button on the front of the device\footnote{If the device does not react to the buttons, verify that no read-out software is running. If the Agilent E4980A is being accessed via USB or GPIB, the control buttons are deactivated.}.
+To do this, press the {\tt Meas Setup} button on the front of the device\footnote{If the device does not react to the buttons, verify that no read-out software is running. If the Agilent E4980A is being accessed via USB, GPIB or serial connection, the control buttons on the device are deactivated.}.
 With the keys on the right of the display, select {\tt Correction} and then {\tt Meas Open}.
-After a successful calibration, you can place the {\tt HVlow} needle on the DUT surface.
 Press the button {\tt Display Format} to return to the main screen.
+After a successful calibration, you can place your device on the chuck as for an IV measurement.
+Then connect the {\tt HVlow} needle to the DUT surface.
+Again, for most DUTs you will want to contact the bias ring.
 You can then switch on the Keithley 6517B.
-The Keithley 6485 is not needed for a CV measurement and can remain switched off.\\
+The Keithley 6485 is not needed for a CV measurement and can remain switched off.
+Set the bottom switch on the CV/IV box to the bottom (CV) position.
+The top switch on the CV/IV box should be in the top (External) position.\\
+
+\subsection{Setup for a Strip Measurement}
+\label{sec:stripsetup}
+
+For a Strip measurement (${\rm C_{int}}$ or ${\rm R_{int}}$), you should also first perform an open measurement, as described in section~\ref{sec:cvsetup}.
+After a successful calibration, you can place your device on the chuck as for an IV measurement.
+Then connect the {\tt HVlow} needle to the DUT surface.
+Again, for most DUTs you will want to contact the bias ring.
+Afterwards, connect the two interstrip needles to the AC- or DC-pads of the strips you want to measure.
+You can then switch on the Keithley 6517B.
+The Keithley 6485 is not needed for a Strip measurement and can remain switched off.
+Set the bottom switch on the CV/IV box to the top (IV) position.
+The top switch on the CV/IV box should be in the bottom (${\rm C_{int}}$/${\rm R_{int}}$) position.\\
 
 \subsection{Performing a Measurement}
 \label{sec:ivmeas}
@@ -496,7 +523,7 @@ D:\Probestation
 \end{lstlisting}
 \medskip
 
-and run the software by double-clicking on the link {\tt Probestation}.
+and run the software by double-clicking the shortcut {\tt Probestation}.
 This will execute the command
 
 \medskip
@@ -505,25 +532,27 @@ C:\Programfiles\Anaconda3\python.exe gui.py D:\Measurements
 \end{lstlisting}
 \medskip
 
-in that folder.
+in that folder\footnote{Opening the shortcut {\tt Debug Probestation}, or appending a {\tt -d} to the command will start the software in debug mode. The console output is more verbose and the user is not asked if the CV/IV box switches are in the correct position.}.
 The software GUI will start with the IV tab open, as shown in figure~\ref{fig:softwareopeniv}.\\
 
 For an IV measurement, select the starting voltage and the end voltage in the respective fields.
 Both positive and negative numbers are accepted.
-The field {\tt Abs step} is used to select the absolute value of each step of the voltage ramp.\\
+The field {\tt Abs step} is used to select the absolute value of each step of the voltage ramp.
+{\tt Wait time} specifies the time in seconds the Keithley 6517B waits before incrementing the voltage output in a ramp.\\
 
 The following field, {\tt Abs compliance current}, should be set to the software compliance limit for this measurement.
 If the absolute value of the current measured by the Keithley 6517B exceeds this value, the voltage source will immediately switch the output off and ramp the voltage down to $0\,\volt$.
 The following check box enables a guard ring measurement with the Keithley 6485, which of course has to be switched on for this.
-If activated, the Keithley 6485 will also check for current compliance and, if reached, turn the Keithley 6517B's voltage output off.
-{\tt Wait time} specifies the time in seconds the Keithley 6517B waits before incrementing the voltage output in a ramp.\\
+If activated, the Keithley 6485 will also check for current compliance and, if reached, turn the Keithley 6517B's voltage output off.\\
 
 The final field allows the user to select a folder in which the measurement results will be saved.
 It defaults to the first command-line argument.
-All measurements are saved with the file name corresponding to date and time of the begin of the measurement.\\
+All measurements are saved with the file name corresponding to date and time of the begining of the measurement.\\
 
 The CV tab shown in figure~\ref{fig:softwareopencv} looks similar, with the difference that the fields for current compliance and guard ring measurement are substituted by fields where the frequency parameters can be set.
 The first one sets the measurement frequency of the Agilent E4980A, the {\tt AC Voltage level} field sets the AC voltage.\\
+
+The Strip measurement tab looks similar to the CV tab, but has an additional field to select either a capacitance or a resistance measurement.\\
 
 {\bf Beware that in CV and Strip measurements, there is no software current compliance!}\footnote{This is because the large internal resistance of the Agilent E4980A and the CV/IV box distorts the current measurement of the Keithley 6517B.}\\
 
@@ -545,8 +574,9 @@ You should therefore first do an IV measurement to verify that your desired volt
 \end{subfigure}
 \end{figure}
 
-For both measurement types, clicking on {\tt Start} begins the measurement.
-A new window will open with a live display of the measurements.
+For all measurement types, clicking on {\tt Start} begins the measurement.
+If you are not running in debug mode, the software will ask you if the switches on the CV/IV box are in the correct position.
+Clicking {\tt no} will abort the measurement, otherwise a new window will open with a live display of the measurements.
 An example ongoing IV measurement with guard ring current measurement is shown in figure~\ref{fig:ivmeas}, a running CV measurement in figure~\ref{fig:cvmeas}.\\
 
 \begin{figure}[hbtp]
@@ -554,7 +584,7 @@ An example ongoing IV measurement with guard ring current measurement is shown i
 \begin{subfigure}[t]{0.475\textwidth}
 \centering\captionsetup{width=.8\linewidth}%
 \includegraphics[width=\linewidth]{pictures/ivmeas.png}
-\caption[Running IV Measurement]{Ongoing IV measurement. The top plot shows the IV characteristic, the bottom plot the guard ring current.}
+\caption[Running IV Measurement]{Ongoing IV measurement. The top plot shows the IV characteristic, the bottom plot the guard ring current vs. applied bias voltage.}
 \label{fig:ivmeas}
 \end{subfigure}
 \begin{subfigure}[t]{0.475\textwidth}
@@ -565,13 +595,14 @@ An example ongoing IV measurement with guard ring current measurement is shown i
 \end{subfigure}
 \end{figure}
 
-In both measurement windows, there is a button to show the absolute measurement values.
+In all measurement windows, there is a button to show the absolute measurement values instead.
 Clicking the {\tt Stop} button will ramp down the output voltage to $0\,\volt$ and switch the output off.
 This will also happen if the measurement window is closed or should crash.
-If an IV with guard ring measurement is selected, the bottom plot will show the guard ring current.
-In a CV measurement, the inverse square of the measured capacitance is displayed.\\
+If an IV with guard ring measurement is selected, the bottom plot will show the guard ring current against bias voltage.
+In a CV measurement, the inverse square of the measured capacitance against bias voltage is displayed.
+In a capacitive strip measurement (${\rm C_{int}}$), the measured capacitance is shown, in a resistive strip measurement (${\rm R_{int}}$), the top plot shows the measured resistance, the bottom plot the measured impedance.\\
 
-On reaching the specified end voltage, the voltage will be ramped down to $0\,\volt$.
+On reaching the specified end voltage, the voltage will safely be ramped down to $0\,\volt$.
 After finishing your measurements, close the software and switch off the Keithley 6517B and 6485 and the Agilent E4980A.
 If you used the chiller, set the temperature to room temperature and wait for thermal equilibrium.
 Then switch off the chiller control unit and then the chiller via the large red switch.
@@ -836,9 +867,12 @@ You then have to download some packages manually
 \medskip
 \begin{lstlisting}
 cd doc
-wget http://www.cs.cmu.edu/afs/cs/misc/tex/common/teTeX-1.0/lib/texmf/tex/latex/misc/SIunits.sty
-wget http://www.cs.cmu.edu/afs/cs/misc/tex/common/teTeX-1.0/lib/texmf/tex/latex/misc/tocbibind.sty
-wget http://www.cs.cmu.edu/afs/cs/misc/tex/common/teTeX-1.0/lib/texmf/tex/latex/misc/stdclsdv.sty
+wget http://www.cs.cmu.edu/afs/cs/misc/tex/common/
+  teTeX-1.0/lib/texmf/tex/latex/misc/SIunits.sty
+wget http://www.cs.cmu.edu/afs/cs/misc/tex/common/
+  teTeX-1.0/lib/texmf/tex/latex/misc/tocbibind.sty
+wget http://www.cs.cmu.edu/afs/cs/misc/tex/common/
+  teTeX-1.0/lib/texmf/tex/latex/misc/stdclsdv.sty
 \end{lstlisting}
 \medskip
 
@@ -864,6 +898,8 @@ This is beyond the scope of this document, there are good step-by-step instructi
 \bibitem{ref:agilentref} Keysight Technologies\\ {\em Keysight E4980A/AL Precision LCR Meter}.\\ \href{https://literature.cdn.keysight.com/litweb/pdf/E4980-90220.pdf?id=789356}{https://literature.cdn.keysight.com/litweb/pdf/E4980-90220.pdf?id=789356}\\ Link accessed 27.03.2018.
 
 \bibitem{ref:keithley6485ref} Keithley Instruments, Inc.\\ {\em Model 6485 Picoammeter Instruction Manual}.\\ \href{http://download.tek.com/manual/6485-901-01(A-Nov2001)(Instruction).pdf}{http://download.tek.com/manual/6485-901-01(A-Nov2001)(Instruction).pdf}\\ Link accessed 27.03.2018.
+
+\bibitem{ref:cvivboxschem} Torsten K\"ulper.\\ {\em Probe Station IV/CV box for LCR meter circuit diagram}.\\ Private communication, 2018.
 
 \end{thebibliography}
 
