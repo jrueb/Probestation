@@ -58,6 +58,20 @@ class VoltsrcGroupWidget ( QtW.QGroupBox ) :
 
 		return ( start, end, step, sleeptime, compcurrent )
 
+class GuardMeasWidget ( QtW.QGroupBox ) :
+	def __init__ ( self ) :
+		super ( GuardMeasWidget, self ) .__init__ ( u"Guard ring" )
+
+		form = QtW.QFormLayout ( )
+		self.setLayout ( form )
+
+		self._guardring_cb = QtW.QCheckBox ( )
+
+		form.addRow ( u"Enable guard ring measurement", self._guardring_cb )
+
+	def getStatus ( self ) :
+		guardring = self._guardring_cb.isChecked ( )
+
 class FreqGroupWidget ( QtW.QGroupBox ) :
 	def __init__ ( self ) :
 		super ( FreqGroupWidget, self ) .__init__ ( u"LCR parameters" )
@@ -130,10 +144,8 @@ class IvTab ( QtW.QWidget ) :
 		self._voltsrc = VoltsrcGroupWidget ( )
 		vbox.addWidget ( self._voltsrc )
 
-		hbox = QtW.QHBoxLayout ( )
-		vbox.addLayout ( hbox )
-		self._guardring_cb = QtW.QCheckBox ( u"Enable guard ring measurement" )
-		hbox.addWidget ( self._guardring_cb )
+		self._guard = GuardMeasWidget ( )
+		vbox.addWidget ( self._guard )
 
 		vbox.addStretch ( 1 )
 
@@ -170,7 +182,7 @@ class IvTab ( QtW.QWidget ) :
 			self._parent_win.showErrorDialog ( u"Invalid sleep time." )
 			return
 
-		guardring = self._guardring_cb.isChecked ( )
+		guardring = self._guard.getStatus ( )
 
 		if compcurrent <= 0 :
 			self._parent_win.showErrorDialog ( u"Compliance current needs to be positive." )
