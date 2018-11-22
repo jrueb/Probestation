@@ -48,6 +48,7 @@ class GPIBDetector ( object ) :
 					logger.debug ( u'   Could not open GPIB connection to %s', res )
 			if not ( dev == None ) :
 				idn = dev.query ( u"*IDN?" )
+				logger.debug ( u'   Got device identification: %s', idn )
 				self.identifiers[res] = idn
 				dev.close ( )
 
