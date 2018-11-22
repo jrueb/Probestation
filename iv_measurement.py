@@ -91,7 +91,6 @@ class IvMeasurementThread ( MeasurementThread ) :
 
 					line = keith_hv.get_reading ( )
 					meas = keith_hv.parse_iv ( line, u"keihv" )
-					print ( u"got %s", meas )
 					if ( not u"keihv_srcvoltage" in meas or not u"keihv_current" in meas or meas[u"keihv_srcvoltage"] is None or meas[u"keihv_current"] is None ) :
 						raise IOError ( u"Got invalid response from Keithley 6517B" )
 					if self._exiting :

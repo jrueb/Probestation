@@ -142,7 +142,6 @@ class Keithley6517B ( KeithleyMeter ) :
 	def parse_iv ( self, line, devname ) :
 		voltage = current = None
 		print ( u"read %s", line )
-		# 6517b
 		for field in line.split ( "," ) :
 			if field[-3:] == "ADC" :
 				current = float ( field[:-3] )
@@ -150,9 +149,6 @@ class Keithley6517B ( KeithleyMeter ) :
 				current = float ( field[:-1] )
 			elif field[-4:] == "Vsrc" :
 				voltage = float ( field[:-4] )
-		# 2410:
-		#voltage = float(line.split(",",2)[0])
-		#current = float(line.split(",",2)[1])
 		return { "{}_srcvoltage".format ( devname ) : voltage, "{}_current" .format ( devname ) : current }
 
 class Keithley2410 ( KeithleyMeter ) :
@@ -253,7 +249,6 @@ class Keithley2410 ( KeithleyMeter ) :
 
 	def parse_iv ( self, line, devname ) :
 		voltage = current = None
-		print ( u"read %s", line )
 		voltage = float(line.split(",",2)[0])
 		current = float(line.split(",",2)[1])
 		return { "{}_srcvoltage".format ( devname ) : voltage, "{}_current" .format ( devname ) : current }
@@ -268,8 +263,6 @@ class Keithley6485 ( KeithleyMeter ) :
 
 	def parse_iv ( self, line, devname ) :
 		voltage = current = None
-		print ( u"read %s", line )
-		# 6517b
 		for field in line.split ( "," ) :
 			if field[-3:] == "ADC" :
 				current = float ( field[:-3] )
