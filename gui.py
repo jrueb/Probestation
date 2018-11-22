@@ -131,7 +131,7 @@ class DirectoryLayout ( QtW.QHBoxLayout ):
 	def getOutputDir ( self ) :
 		return self._edit.text ( )
 
-MeasurementArgs = namedtuple ( u"MeasurementArgs", [u"type", u"devname_kei6517b", u"devname_kei6485", u"devname_agiE4980A", u"start", u"end", u"step", u"compcurrent", u"guardring", u"resistance", u"frequency", u"deltavolt", u"sleep", u"output_dir"] )
+MeasurementArgs = namedtuple ( u"MeasurementArgs", [u"type", u"devname_hv", u"devname_kei6485", u"devname_agiE4980A", u"start", u"end", u"step", u"compcurrent", u"guardring", u"resistance", u"frequency", u"deltavolt", u"sleep", u"output_dir"] )
 
 class IvTab ( QtW.QWidget ) :
 	def __init__ ( self, parent_win, output_dir ) :
@@ -197,8 +197,18 @@ class IvTab ( QtW.QWidget ) :
 		try :
 			detector = gpib_detect.GPIBDetector ( )
 			kei6517b_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 6517B" )
+			kei2410_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 2410" )
 			if kei6517b_devname is None :
-				self._parent_win.showErrorDialog ( u"Could not find Keithley 6517B." )
+				hvdev_devname = kei2410_devname
+				logger.debug ( u"  Couldn't find Keithley 6517B, trying Keithley 2410 for HV." )
+			if kei2410_devname is None :
+				hvdev_devname = kei6517b_devname
+				logger.debug ( u"  Couldn't find Keithley 2410, trying Keithley 6517B for HV." )
+			if ( kei6517b_devname is not None and kei2410_devname is not None) :
+				self._parent_win.showErrorDialog ( u"I found both Keithley 6517B and Keithley 2410, I don't know which to use!" )
+				return
+			if ( kei6517b_devname is None and kei2410_devname is None ) :
+				self._parent_win.showErrorDialog ( u"Could not find Keithley 6517B or Keithley 2410." )
 				return
 			if guardring :
 				kei6485_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 6485" )
@@ -211,7 +221,7 @@ class IvTab ( QtW.QWidget ) :
 			self._parent_win.showErrorDialog ( u"Could not connect to GPIB/serial devices." )
 			return
 
-		args = MeasurementArgs ( u"IV", kei6517b_devname, kei6485_devname, None, start, end, step, compcurrent, guardring, None, None, None, sleeptime, output_dir )
+		args = MeasurementArgs ( u"IV", hvdev_devname, kei6485_devname, None, start, end, step, compcurrent, guardring, None, None, None, sleeptime, output_dir )
 		self._parent_win.startMeasurement ( args )
 
 class CvTab ( QtW.QWidget ) :
@@ -284,8 +294,18 @@ class CvTab ( QtW.QWidget ) :
 		try :
 			detector = gpib_detect.GPIBDetector ( )
 			kei6517b_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 6517B" )
+			kei2410_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 2410" )
 			if kei6517b_devname is None :
-				self._parent_win.showErrorDialog ( u"Could not find Keithley 6517B." )
+				hvdev_devname = kei2410_devname
+				logger.debug ( u"  Couldn't find Keithley 6517B, trying Keithley 2410 for HV." )
+			if kei2410_devname is None :
+				hvdev_devname = kei6517b_devname
+				logger.debug ( u"  Couldn't find Keithley 2410, trying Keithley 6517B for HV." )
+			if ( kei6517b_devname is not None and kei2410_devname is not None) :
+				self._parent_win.showErrorDialog ( u"I found both Keithley 6517B and Keithley 2410, I don't know which to use!" )
+				return
+			if ( kei6517b_devname is None and kei2410_devname is None ) :
+				self._parent_win.showErrorDialog ( u"Could not find Keithley 6517B or Keithley 2410." )
 				return
 			agie4980a_devname = detector.get_resname_for ( u"Agilent Technologies,E4980A" )
 			if agie4980a_devname is None :
@@ -296,7 +316,7 @@ class CvTab ( QtW.QWidget ) :
 			return
 
 		# CV box adds 1KOhm -> compcurrent goes down...
-		args = MeasurementArgs ( u"CV", kei6517b_devname, None, agie4980a_devname, start, end, step, compcurrent * 1000.0, None, None, freq, volt, sleeptime, output_dir )
+		args = MeasurementArgs ( u"CV", hvdev_devname, None, agie4980a_devname, start, end, step, compcurrent * 1000.0, None, None, freq, volt, sleeptime, output_dir )
 		self._parent_win.startMeasurement ( args )
 
 class StripTab ( QtW.QWidget ) :
@@ -381,8 +401,18 @@ class StripTab ( QtW.QWidget ) :
 		try :
 			detector = gpib_detect.GPIBDetector ( )
 			kei6517b_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 6517B" )
+			kei2410_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 2410" )
 			if kei6517b_devname is None :
-				self._parent_win.showErrorDialog ( u"Could not find Keithley 6517B." )
+				hvdev_devname = kei2410_devname
+				logger.debug ( u"  Couldn't find Keithley 6517B, trying Keithley 2410 for HV." )
+			if kei2410_devname is None :
+				hvdev_devname = kei6517b_devname
+				logger.debug ( u"  Couldn't find Keithley 2410, trying Keithley 6517B for HV." )
+			if ( kei6517b_devname is not None and kei2410_devname is not None) :
+				self._parent_win.showErrorDialog ( u"I found both Keithley 6517B and Keithley 2410, I don't know which to use!" )
+				return
+			if ( kei6517b_devname is None and kei2410_devname is None ) :
+				self._parent_win.showErrorDialog ( u"Could not find Keithley 6517B or Keithley 2410." )
 				return
 			agie4980a_devname = detector.get_resname_for ( u"Agilent Technologies,E4980A" )
 			if agie4980a_devname is None :
@@ -393,7 +423,7 @@ class StripTab ( QtW.QWidget ) :
 			return
 
 		# CV box adds 1KOhm -> compcurrent goes down...
-		args = MeasurementArgs ( u"Strip", kei6517b_devname, None, agie4980a_devname, start, end, step, compcurrent * 1000.0, None, resistance, freq, volt, sleeptime, output_dir )
+		args = MeasurementArgs ( u"Strip", hvdev_devname, None, agie4980a_devname, start, end, step, compcurrent * 1000.0, None, resistance, freq, volt, sleeptime, output_dir )
 		self._parent_win.startMeasurement ( args )
 
 class MainWindow ( QtW.QMainWindow ) :

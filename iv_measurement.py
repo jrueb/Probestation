@@ -42,8 +42,19 @@ class IvMeasurementThread ( MeasurementThread ) :
 		logger.debug ( u' In iv_measurement.py:' )
 
 		try :
-			keith6517B = keithley.Keithley6517B ( args.devname_kei6517b )
-			logger.info ( u"  Voltage source device introduced itself as {}" .format ( keith6517B.identify ( ) ) )
+			input_hv = keithley.KeithleyMeter ( args.devname_hv )
+			if input_hv.identify ( ) .startswith ( u"KEITHLEY INSTRUMENTS INC.,MODEL 6517B" ) :
+				keith_hv = keithley.Keithley6517B ( args.devname_hv )
+			elif input_hv.identify ( ) .startswith ( u"KEITHLEY INSTRUMENTS INC.,MODEL 2410" ) :
+				keith_hv = keithley.Keithley2410 ( args.devname_hv )
+			else :
+				errormsg = u"Could not open devices."
+				self.error_signal.emit ( errormsg )
+				logger.error ( errormsg )
+				self.finished.emit ( os.path.join ( str ( args.output_dir ), fname ) )
+				return
+			logger.info ( u"  Voltage source device introduced itself as {}" .format ( keith_hv.identify ( ) ) )
+			
 			if not args.devname_kei6485 is None and args.guardring :
 				keith6485 = keithley.Keithley6485 ( args.devname_kei6485 )
 				logger.info ( u"  Guard ring device introduced itself as {}" .format ( keith6485.identify ( ) ) )
@@ -63,48 +74,51 @@ class IvMeasurementThread ( MeasurementThread ) :
 			if sys.version_info.major < 3:
 				mode += 'b'
 
+			keith_hv.set_compliance ( args.compcurrent )
+
 			with open ( output_csv, mode ) as f :
 				if not keith6485 is None :
-					header = OrderedDict ( [ ( 'kei6517b_srcvoltage', None ), ( 'kei6517b_current', None ), ( 'kei6485_current', None ) ] )
+					header = OrderedDict ( [ ( 'keihv_srcvoltage', None ), ( 'keihv_current', None ), ( 'kei6485_current', None ) ] )
 				else :
-					header = OrderedDict ( [ ( 'kei6517b_srcvoltage', None ), ( 'kei6517b_current', None ) ] )
+					header = OrderedDict ( [ ( 'keihv_srcvoltage', None ), ( 'keihv_current', None ) ] )
 				writer = csv.DictWriter ( f, fieldnames = header, extrasaction = u"ignore" )
 				writer.writeheader ( )
 
-				for voltage in keith6517B.voltage_series ( args.start, args.end, args.step ) :
+				for voltage in keith_hv.voltage_series ( args.start, args.end, args.step ) :
 					sleep ( args.sleep )
 					if self._exiting :
 						break
 
-					line = keith6517B.get_reading ( )
-					meas = keithley.parse_iv ( line, u"kei6517b" )
-					if ( not u"kei6517b_srcvoltage" in meas or not u"kei6517b_current" in meas or meas[u"kei6517b_srcvoltage"] is None or meas[u"kei6517b_current"] is None ) :
+					line = keith_hv.get_reading ( )
+					meas = keith_hv.parse_iv ( line, u"keihv" )
+					print ( u"got %s", meas )
+					if ( not u"keihv_srcvoltage" in meas or not u"keihv_current" in meas or meas[u"keihv_srcvoltage"] is None or meas[u"keihv_current"] is None ) :
 						raise IOError ( u"Got invalid response from Keithley 6517B" )
 					if self._exiting :
 						break
 
 					if not keith6485 is None :
 						gr_line = keith6485.get_reading ( )
-						meas.update ( keithley.parse_iv ( gr_line, u"kei6485" ) )
+						meas.update ( keith6485.parse_iv ( gr_line, u"kei6485" ) )
 						if ( not u"kei6485_current" in meas or meas[u"kei6485_current"] is None ) :
 							raise IOError ( u"Got invalid response from Keithley 6485" )
-						print ( u"VSrc = {: 10.4g} V; I = {: 10.4g} A; IGr = {: 10.4g} A" .format ( meas[u"kei6517b_srcvoltage"], meas[u"kei6517b_current"], meas[u"kei6485_current"] ) )
+						print ( u"VSrc = {: 10.4g} V; I = {: 10.4g} A; IGr = {: 10.4g} A" .format ( meas[u"keihv_srcvoltage"], meas[u"keihv_current"], meas[u"kei6485_current"] ) )
 					else :
 						meas[u"kei6485_current"] = 0
-						print ( u"VSrc = {: 10.4g} V; I = {: 10.4g} A" .format ( meas[u"kei6517b_srcvoltage"], meas[u"kei6517b_current"] ) )
+						print ( u"VSrc = {: 10.4g} V; I = {: 10.4g} A" .format ( meas[u"keihv_srcvoltage"], meas[u"keihv_current"] ) )
 
-					if ( abs ( meas[u"kei6517b_current"] ) >= args.compcurrent or abs ( meas[u"kei6485_current"] ) >= args.compcurrent ) :
+					if ( abs ( meas[u"keihv_current"] ) >= args.compcurrent or abs ( meas[u"kei6485_current"] ) >= args.compcurrent ) :
 						self.error_signal.emit ( u"Compliance current reached" )
 						print ( u"Compliance current reached" )
 						#Instant turn off
-						keith6517B.set_output_state ( False )
+						keith_hv.set_output_state ( False )
 						self._exiting = True
 
 					writer.writerow ( meas )
 					if args.guardring :
-						self.measurement_ready.emit ( ( meas[u"kei6517b_srcvoltage"], meas[u"kei6517b_current"], meas[u"kei6485_current"] ) )
+						self.measurement_ready.emit ( ( meas[u"keihv_srcvoltage"], meas[u"keihv_current"], meas[u"kei6485_current"] ) )
 					else :
-						self.measurement_ready.emit ( ( meas[u"kei6517b_srcvoltage"], meas[u"kei6517b_current"] ) )
+						self.measurement_ready.emit ( ( meas[u"keihv_srcvoltage"], meas[u"keihv_current"] ) )
 					if self._exiting :
 						break
 
@@ -119,10 +133,10 @@ class IvMeasurementThread ( MeasurementThread ) :
 		finally :
 			logger.info ( u"Stopping measurement" )
 			try :
-				keith6517B.stop_measurement ( )
+				keith_hv.stop_measurement ( )
 			except ( VisaIOError, InvalidBinaryFormat, ValueError ) :
 				logger.error ( u"Error during stopping. Trying turn off output" )
-				keith6517B.set_output_state ( False )
+				keith_hv.set_output_state ( False )
 
 		self.finished.emit ( os.path.join (  str ( args.output_dir ), fname ) )
 
