@@ -63,7 +63,7 @@ class Keithley6517B ( KeithleyMeter ) :
 
 		self._write ( ":SENSE:FUNCTION 'CURRENT:DC'" )
 
-		self._write ( ":SENSE:CURRENT:DC:NPLCYCLES 1; AVERAGE:COUNT 5; STATE ON" )
+		self._write ( ":SENSE:CURRENT:DC:NPLCYCLES 1; AVERAGE:COUNT 5; STATE OFF" )
 		self._write ( ":FORMAT:ELEMENTS READING,UNITS,VSOURCE" )
 
 	# FIXME
