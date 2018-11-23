@@ -46,7 +46,7 @@
 \begin{abstract}
 This document describes the operation of the probe station in the clean room of the FH E-Lab at DESY and the use of the corresponding software.
 Chapter~\ref{sec:hw} lists the available hardware and how the devices should be connected.
-In chapter~\ref{sec:meas} the steps needed to perform a measurement are explained together with details on how to use the measurement software.\\ \newline
+In chapter~\ref{sec:meas} the steps needed to perform a measurement are explained, together with details on how to use the measurement software.\\ \newline
 The most recent versions of this manual and the software can be found at~\cite{ref:github}.
 \end{abstract}
 
@@ -57,7 +57,7 @@ The most recent versions of this manual and the software can be found at~\cite{r
 \label{sec:hw}
 
 This chapter gives an overview of the probe station's devices and their default connections.
-After a measurement, all connections should be returned to this default state and the devices turned off.\\
+After finishing your measurements, all connections should be returned to this default state and the devices turned off.\\
 
 \subsection{Cold Box}
 \label{sec:coldbox}
@@ -76,7 +76,7 @@ An outside view of the cold box is shown in figure~\ref{fig:outsidecoldbox}, an 
 \begin{subfigure}[t]{0.475\textwidth}
 \centering\captionsetup{width=.8\linewidth}%
 \includegraphics[width=\linewidth]{pictures/inside_box.jpg}
-\captionof{figure}[The Cold Box from the Inside]{Inside view of the Cold Box with the chuck.}
+\captionof{figure}[The Cold Box from the Inside]{Inside view of the cold box with the chuck.}
 \label{fig:insidecoldbox}
 \end{subfigure}
 \end{figure}
@@ -171,7 +171,7 @@ Figures~\ref{fig:keithley6517bfront} and~\ref{fig:keithley6517bback} show the fr
 The connection schematic is shown in figure~\ref{fig:electrical} and explained in section~\ref{sec:connections}.
 A manual can be downloaded from~\cite{ref:keithley6517bref}.
 It can take a while for the Keithley 6517B to warm up after switching it on, so for comparable and accurate measurements it is advised to wait a few minutes.
-After a measurement, the Keithley 6517B should be turned off again.\\
+After finishing your measurements, the Keithley 6517B should be turned off again, especially before opening the cold box and (dis-)connecting the probe needles.\\
 
 \begin{figure}[hbtp]
 \centering
@@ -214,7 +214,7 @@ The CV/IV box shown in figure~\ref{fig:cvivbox} is plugged into the front of the
 \end{figure}
 
 A circuit diagram of the box is shown in figure~\ref{fig:cvivboxschematic}.
-The top switch can be used to connect (${\rm C_{int}}$) or disconnect (${\rm R_{int}}$) the Agilent E4980A to the top row connectors.
+The top switch can be used to connect (${\tt C_{int}}$/${\tt R_{int}}$) or disconnect ({\tt Ext}) the Agilent E4980A to the top row connectors.
 Switching should {\bf never} be done during a measurement or whilst a voltage is applied.
 Note that if the CV/IV box is in CV mode, the current measurement of the Keithley 6517B will no longer be accurate.
 This is because of the large internal resistance of the Agilent E4980A and the CV/IV box.
@@ -276,7 +276,7 @@ The chiller can be used to cool the chuck and thus the DUT.
 It is switched on by the large red switch on its front.
 The chiller control unit (c.f. figures~\ref{fig:attfront} and~\ref{fig:attback} for front and back views) is located on the shelf above the read-out computer and has a power switch on its rear.
 The control unit is operated via the front touch pad.
-Beware that to operate the chiller, it must have sufficient coolant inside.
+Beware that to operate the chiller, it must have sufficient coolant inside (check the markings).
 Furthermore, to prevent condensation, the cold box should be flushed with dry air.
 To monitor the dew point, a pipe with dry air is routed into the chiller control unit and from there into the chuck.
 Inside the cold box, a dew point sensor probe connected to the control unit (connector {\tt X5}) measures temperature and humidity.
@@ -456,60 +456,68 @@ Figure~\ref{fig:dryair} shows the default connections.\\
 \section{Performing Measurements and Using the Read-Out Software}
 \label{sec:meas}
 
-This chapter describes how to do an IV and a CV measurement of a simple diode DUT.
+This chapter describes how to do an IV, a CV measurement and a strip measurement of a generic DUT.
 It is assumed that the entire setup is switched off with no active measurement running.
 Please make an entry into the setup's log book, stating your name, the date, the measurement you performed and any possible changes you made to the setup.\\
 
 \subsection{General Device Setup}
 \label{sec:devicesetup}
 
-Verify that there is no active output from the Keithley 6517B and no ongoing measurement.
-You can then open the cold box and, using the microscope, place the DUT on the chuck.
+\begin{itemize}
+\item Verify that there is no active output from the Keithley 6517B with no ongoing measurement and that all devices (Keithley 6517B, Keithley 6485, Agilent E4980A and chiller control unit) are switched off.
+\item You can then open the cold box and, using the microscope, place the DUT on the chuck.
 The probe needles should be well out of the way to prevent damage.
-With tweezers, gently move the DUT over the outer vacuum hole on the chuck and switch on the vacuum pump to fix the DUT on the chuck.
-For a measurement in a dry air atmosphere or for measurements at low temperatures, turn on the dry air flow, as described in section~\ref{sec:chuck}.
-If needed, operate the chiller via the touch panel of the control unit and wait for thermal equilibrium.\\
+\item With tweezers, gently move the DUT over the outer vacuum hole on the chuck and then switch on the vacuum pump to fix the DUT on the chuck.
+\item For a measurement in a dry air atmosphere or for measurements at low temperatures, turn on the dry air flow, as described in section~\ref{sec:chuck}.
+\item If needed, operate the chiller via the touch panel of the control unit and wait for thermal equilibrium.\\
+\end{itemize}
 
 \subsection{Setup for an IV Measurement}
 \label{sec:ivsetup}
 
-By operating the probe needles as described in figure~\ref{fig:needle}, carefully place the {\tt HVlow} needle on the DUT surface.
+\begin{itemize}
+\item By operating the probe needles as described in figure~\ref{fig:needle}, carefully place the {\tt HVlow} needle on the DUT surface.
 On most DUTs you will want to contact the bias ring.
-You can then switch on the Keithley 6517B with its switch on the front side of the device.
-Set the bottom switch on the CV/IV box to the top (IV) position.
+\item To additionally measure the guard ring current, place the {\tt Iguard} needle on the guard ring of the DUT.
+\item Afterwards, close the cold box lid.
+\item You can then switch on the Keithley 6517B with its switch on the front side of the device.
+\item Set the bottom switch on the CV/IV box to the top (IV) position if it is not already there.
 The state of the top switch is not important.
-For a simple IV measurement, above steps are sufficient.
-To additionally measure the guard ring current, place the {\tt Iguard} needle on the guard ring of the DUT.
-You can then switch on the Keithley 6485 with its front-side switch.\\
+\item If you placed the guard ring needle, you can then switch on the Keithley 6485 with its front-side switch.
+\item Then perform an IV measurement, as described in~\ref{sec:ivmeas}.\\
+\end{itemize}
 
 \subsection{Setup for a CV Measurement}
 \label{sec:cvsetup}
 
-For a CV measurement, turn on the Agilent E4980A with its front-side switch and wait for it to warm up.
-Before connecting any probe needles, you should perform an open measurement for calibration.
-To do this, press the {\tt Meas Setup} button on the front of the device\footnote{If the device does not react to the buttons, verify that no read-out software is running. If the Agilent E4980A is being accessed via USB, GPIB or serial connection, the control buttons on the device are deactivated.}.
-With the keys on the right of the display, select {\tt Correction} and then {\tt Meas Open}.
-Press the button {\tt Display Format} to return to the main screen.
-After a successful calibration, you can place your device on the chuck as for an IV measurement.
-Then connect the {\tt HVlow} needle to the DUT surface.
-Again, for most DUTs you will want to contact the bias ring.
-You can then switch on the Keithley 6517B.
-The Keithley 6485 is not needed for a CV measurement and can remain switched off.
-Set the bottom switch on the CV/IV box to the bottom (CV) position.
-The top switch on the CV/IV box should be in the top (External) position.\\
+\begin{itemize}
+\item Before doing a CV measurement, first perform an IV measurement, as described above.
+With the IV measurement, verify that your DUT can handle the measurement polarity and range you want to cover in the CV measurement.
+\item After the IV measurement is done, turn on the Agilent E4980A with its front-side switch and wait for it to start up.
+The cold box can remain closed and the needles can stay on your DUT.
+\item Set the bottom switch on the CV/IV box to the bottom (CV) position.
+\item The top switch on the CV/IV box should be in the top (External) position.
+\item Then run a CV measurement, as described in~\ref{sec:ivmeas}.\\
+\end{itemize}
 
 \subsection{Setup for a Strip Measurement}
 \label{sec:stripsetup}
 
-For a Strip measurement (${\rm C_{int}}$ or ${\rm R_{int}}$), you should also first perform an open measurement, as described in section~\ref{sec:cvsetup}.
-After a successful calibration, you can place your device on the chuck as for an IV measurement.
-Then connect the {\tt HVlow} needle to the DUT surface.
-Again, for most DUTs you will want to contact the bias ring.
-Afterwards, connect the two interstrip needles to the AC- or DC-pads of the strips you want to measure.
-You can then switch on the Keithley 6517B.
-The Keithley 6485 is not needed for a Strip measurement and can remain switched off.
-Set the bottom switch on the CV/IV box to the top (IV) position.
+For a strip measurement (${\rm C_{int}}$ or ${\rm R_{int}}$), the recommended operation procedure is slightly different:
+
+\begin{itemize}
+\item First, follow all the steps described in section~\ref{sec:devicesetup} with all devices (Keithley 6517B, Keithley 6485, Agilent E4980A and chiller control unit) switched off.
+\item Before connecting any probe needles, you should perform an open measurement for calibration. For this, turn on the Agilent E4980A.
+\item Then press the {\tt Meas Setup} button on the front of the device\footnote{If the device does not react to the buttons, verify that no read-out software is running. If the Agilent E4980A is being accessed via USB, GPIB or LAN connection, the control buttons on the device are deactivated.}.
+\item With the keys on the right of the display, select {\tt Correction} and then {\tt Meas Open}.
+\item Press the button {\tt Display Format} to return to the main screen.
+\item After a successful calibration, you can place the {\tt HVlow} needle on your device as for an IV measurement. Again, for most DUTs you will want to contact the bias ring.
+\item Afterwards, connect the two inter-strip needles to the AC- or DC-pads of the strips you want to measure.
+\item You can then switch on the Keithley 6517B.
+The Keithley 6485 (and the guard ring needle) is not needed for a strip measurement and can remain switched off.
+\item Set the bottom switch on the CV/IV box to the top (IV) position.
 The top switch on the CV/IV box should be in the bottom (${\rm C_{int}}$/${\rm R_{int}}$) position.\\
+\end{itemize}
 
 \subsection{Performing a Measurement}
 \label{sec:ivmeas}
@@ -532,7 +540,8 @@ C:\Programfiles\Anaconda3\python.exe gui.py D:\Measurements
 \end{lstlisting}
 \medskip
 
-in that folder\footnote{Opening the shortcut {\tt Debug Probestation}, or appending a {\tt -d} to the command will start the software in debug mode. The console output is more verbose and the user is not asked if the CV/IV box switches are in the correct position.}.
+in that folder\footnote{Opening the shortcut {\tt Debug Probestation}, or appending a {\tt -d} to the command will start the software in debug mode.
+The console output is more verbose and the user is not asked if the CV/IV box switches are in the correct position.}.
 The software GUI will start with the IV tab open, as shown in figure~\ref{fig:softwareopeniv}.\\
 
 For an IV measurement, select the starting voltage and the end voltage in the respective fields.
@@ -547,16 +556,17 @@ If activated, the Keithley 6485 will also check for current compliance and, if r
 
 The final field allows the user to select a folder in which the measurement results will be saved.
 It defaults to the first command-line argument.
-All measurements are saved with the file name corresponding to date and time of the begining of the measurement.\\
+All measurements are saved as a {\tt .csv} file with the file name corresponding to date and time of the beginning of the measurement.
+Furthermore, an {\tt .svg} image is saved of the final measurement window.\\
 
-The CV tab shown in figure~\ref{fig:softwareopencv} looks similar, with the difference that the fields for current compliance and guard ring measurement are substituted by fields where the frequency parameters can be set.
+The CV tab shown in figure~\ref{fig:softwareopencv} looks similar to the IV tab, with additional fields where the frequency parameters can be set.
 The first one sets the measurement frequency of the Agilent E4980A, the {\tt AC Voltage level} field sets the AC voltage.\\
 
-The Strip measurement tab looks similar to the CV tab, but has an additional field to select either a capacitance or a resistance measurement.\\
+The strip measurement tab looks similar to the CV tab, but has an additional field to select either a capacitance or a resistance measurement.\\
 
-{\bf Beware that in CV and Strip measurements, there is no software current compliance!}\footnote{This is because the large internal resistance of the Agilent E4980A and the CV/IV box distorts the current measurement of the Keithley 6517B.}\\
+{\bf Beware that in CV and strip measurements, there is no software current compliance!}\footnote{This is because the large internal resistances of both the Agilent E4980A and the CV/IV box distort the current measurement of the Keithley 6517B.}\\
 
-You should therefore first do an IV measurement to verify that your desired voltage range is safe for your DUT.\\
+You should therefore {\bf always} first do an IV measurement to verify that your desired voltage range is safe for your DUT.\\
 
 \begin{figure}[hbtp]
 \centering
@@ -608,6 +618,19 @@ If you used the chiller, set the temperature to room temperature and wait for th
 Then switch off the chiller control unit and then the chiller via the large red switch.
 After verifying that there is no voltage output, you can open the cold box and, using the microscope, detach the probe needles.
 Then switch the vacuum off and carefully remove your DUT before closing the cold box.\\
+
+The read-out computer should be left running, also so that measurement data can be retrieved over the network.\\
+
+\subsection{Additional Software Features}
+\label{sec:additional}
+
+The probe station software can also be used beyond the setup described here.
+For all devices, serial or USB-to-serial connections are usable from a software point of view instead of GPIB connections.
+The program will automatically detect the correct connection type.
+Furthermore, a Keithley 2410 can be used as an alternative to the Keithley 6517B as a high-voltage source .
+The software detects the model connected and adjusts the commands.
+Beware that if both high-voltage source devices are detected, the software will display an error message, since it is not clear which device should be used.
+Switch off one of the devices to proceed.\\
 
 \subsection{Installing the Software}
 \label{sec:installation}
@@ -897,9 +920,9 @@ This is beyond the scope of this document, there are good step-by-step instructi
 
 \bibitem{ref:agilentref} Keysight Technologies\\ {\em Keysight E4980A/AL Precision LCR Meter}.\\ \href{https://literature.cdn.keysight.com/litweb/pdf/E4980-90220.pdf?id=789356}{https://literature.cdn.keysight.com/litweb/pdf/E4980-90220.pdf?id=789356}\\ Link accessed 27.03.2018.
 
-\bibitem{ref:keithley6485ref} Keithley Instruments, Inc.\\ {\em Model 6485 Picoammeter Instruction Manual}.\\ \href{http://download.tek.com/manual/6485-901-01(A-Nov2001)(Instruction).pdf}{http://download.tek.com/manual/6485-901-01(A-Nov2001)(Instruction).pdf}\\ Link accessed 27.03.2018.
-
 \bibitem{ref:cvivboxschem} Torsten K\"ulper.\\ {\em Probe Station IV/CV box for LCR meter circuit diagram}.\\ Private communication, 2018.
+
+\bibitem{ref:keithley6485ref} Keithley Instruments, Inc.\\ {\em Model 6485 Picoammeter Instruction Manual}.\\ \href{http://download.tek.com/manual/6485-901-01(A-Nov2001)(Instruction).pdf}{http://download.tek.com/manual/6485-901-01(A-Nov2001)(Instruction).pdf}\\ Link accessed 27.03.2018.
 
 \end{thebibliography}
 
