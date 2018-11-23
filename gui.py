@@ -205,7 +205,7 @@ class IvTab ( QtW.QWidget ) :
 				hvdev_devname = kei6517b_devname
 				logger.debug ( u"  Couldn't find Keithley 2410, trying Keithley 6517B for HV." )
 			if ( kei6517b_devname is not None and kei2410_devname is not None) :
-				self._parent_win.showErrorDialog ( u"I found both Keithley 6517B and Keithley 2410, I don't know which to use!" )
+				self._parent_win.showErrorDialog ( u"I found both Keithley 6517B and Keithley 2410!<br><br>I don't know which to use!" )
 				return
 			if ( kei6517b_devname is None and kei2410_devname is None ) :
 				self._parent_win.showErrorDialog ( u"Could not find Keithley 6517B or Keithley 2410." )
@@ -302,7 +302,7 @@ class CvTab ( QtW.QWidget ) :
 				hvdev_devname = kei6517b_devname
 				logger.debug ( u"  Couldn't find Keithley 2410, trying Keithley 6517B for HV." )
 			if ( kei6517b_devname is not None and kei2410_devname is not None) :
-				self._parent_win.showErrorDialog ( u"I found both Keithley 6517B and Keithley 2410, I don't know which to use!" )
+				self._parent_win.showErrorDialog ( u"I found both Keithley 6517B and Keithley 2410!<br><br>I don't know which to use!" )
 				return
 			if ( kei6517b_devname is None and kei2410_devname is None ) :
 				self._parent_win.showErrorDialog ( u"Could not find Keithley 6517B or Keithley 2410." )
@@ -409,7 +409,7 @@ class StripTab ( QtW.QWidget ) :
 				hvdev_devname = kei6517b_devname
 				logger.debug ( u"  Couldn't find Keithley 2410, trying Keithley 6517B for HV." )
 			if ( kei6517b_devname is not None and kei2410_devname is not None) :
-				self._parent_win.showErrorDialog ( u"I found both Keithley 6517B and Keithley 2410, I don't know which to use!" )
+				self._parent_win.showErrorDialog ( u"I found both Keithley 6517B and Keithley 2410!<br><br>I don't know which to use!" )
 				return
 			if ( kei6517b_devname is None and kei2410_devname is None ) :
 				self._parent_win.showErrorDialog ( u"Could not find Keithley 6517B or Keithley 2410." )
