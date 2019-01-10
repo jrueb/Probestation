@@ -3,6 +3,7 @@
 from __future__ import absolute_import
 import logging
 import visa
+import useserial
 
 class AgilentMeter ( object ) :
 	def __init__ ( self, resource_name ) :
@@ -11,16 +12,17 @@ class AgilentMeter ( object ) :
 			rm1 = visa.ResourceManager ( )
 			resources = rm1.list_resources ( )
 		except :
-			logger.debug ( u'  Failed to open ni-visa' )
+			logger.debug ( u"  Failed to open ni-visa" )
 		try :
-			rm2 = visa.ResourceManager ( u'@py' )
-			resources += rm2.list_resources ( )
+			if useserial.haveserial :
+				rm2 = visa.ResourceManager ( u'@py' )
+				resources += rm2.list_resources ( )
 		except :
-			logger.debug ( u'  Failed to open pi-visa' )
+			logger.debug ( u"  Failed to open py-visa" )
 		if not resource_name in resources :
 			self._connected = False
 			raise ValueError ( u"Resource not found {}" .format ( resource_name ) )
-		if resource_name.startswith ( u"ASRL" ) :
+		if resource_name.startswith ( u"ASRL" ) and useserial.haveserial :
 			logger.debug ( u"  Opening {} with py-visa." .format ( resource_name ) )
 			self._res = rm2.open_resource ( resource_name, baud_rate = 19200, data_bits = 8, timeout = 5000 )
 		else :

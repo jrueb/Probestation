@@ -3,6 +3,7 @@
 import logging
 import visa
 import time
+import useserial
 import numpy as np
 
 class KeithleyMeter ( object ) :
@@ -13,16 +14,17 @@ class KeithleyMeter ( object ) :
 			rm1 = visa.ResourceManager ( )
 			resources = rm1.list_resources ( )
 		except :
-			logger.debug ( u'  Failed to open ni-visa' )
+			logger.debug ( u"  Failed to open ni-visa" )
 		try :
-			rm2 = visa.ResourceManager ( '@py' )
-			resources += rm2.list_resources ( )
+			if useserial.haveserial :
+				rm2 = visa.ResourceManager ( '@py' )
+				resources += rm2.list_resources ( )
 		except :
-			logger.debug ( u'  Failed to open pi-visa' )
+			logger.debug ( u"  Failed to open py-visa" )
 		if not resource_name in resources :
 			self._connected = False
 			raise ValueError ( "Resource not found {}" .format ( resource_name ) )
-		if resource_name.startswith ( "ASRL" ) :
+		if resource_name.startswith ( "ASRL" ) and useserial.haveserial :
 			logger.debug ( u"  Opening {} with py-visa." .format ( resource_name ) )
 			# 5000 msecs needed to catch slow devices...
 			self._res = rm2.open_resource ( resource_name, baud_rate = 19200, data_bits = 8, timeout = 5000 )

@@ -39,7 +39,7 @@ class IvMeasurementThread ( MeasurementThread ) :
 		fname = getDateTimeFilename ( )
 		output_csv = os.path.join ( str ( args.output_dir ), fname + u".csv" )
 		logger = logging.getLogger ( u'myLogger' )
-		logger.debug ( u' In iv_measurement.py:' )
+		logger.debug ( u" In iv_measurement.py:" )
 
 		try :
 			input_hv = keithley.KeithleyMeter ( args.devname_hv )

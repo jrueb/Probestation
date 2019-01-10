@@ -19,6 +19,8 @@ from iv_measurement import IvMeasurementWindow
 from cv_measurement import CvMeasurementWindow
 from strip_measurement import StripMeasurementWindow
 
+import useserial
+
 def createSpin ( lower, upper, step, value, decimals, suffix, tooltip = u"" ) :
 	spin = QtW.QDoubleSpinBox ( )
 	spin.setRange ( lower, upper )
@@ -29,6 +31,21 @@ def createSpin ( lower, upper, step, value, decimals, suffix, tooltip = u"" ) :
 	if tooltip :
 		spin.setToolTip ( tooltip )
 	return spin
+
+class SerialEnableWidget ( QtW.QGroupBox ) :
+	def __init__ ( self ) :
+		super ( SerialEnableWidget, self ) .__init__ ( u"Device communication" )
+
+		form = QtW.QFormLayout ( )
+		self.setLayout ( form )
+
+		self._serialenable_cb = QtW.QCheckBox ( )
+
+		form.addRow ( u"Enable serial device connection", self._serialenable_cb )
+
+	def getStatus ( self ) :
+		enableserial = self._serialenable_cb.isChecked ( )
+		return ( enableserial )
 
 class VoltsrcGroupWidget ( QtW.QGroupBox ) :
 	def __init__ ( self ) :
@@ -142,6 +159,9 @@ class IvTab ( QtW.QWidget ) :
 		vbox = QtW.QVBoxLayout ( )
 		self.setLayout ( vbox )
 
+		self._serial = SerialEnableWidget ( )
+		vbox.addWidget ( self._serial )
+
 		self._voltsrc = VoltsrcGroupWidget ( )
 		vbox.addWidget ( self._voltsrc )
 
@@ -183,6 +203,8 @@ class IvTab ( QtW.QWidget ) :
 			self._parent_win.showErrorDialog ( u"Invalid sleep time." )
 			return
 
+		serialenable = self._serial.getStatus ( )
+
 		guardring = self._guard.getStatus ( )
 
 		if compcurrent <= 0 :
@@ -195,6 +217,8 @@ class IvTab ( QtW.QWidget ) :
 			return
 
 		try :
+			if serialenable :
+				useserial.haveserial = True
 			detector = gpib_detect.GPIBDetector ( )
 			kei6517b_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 6517B" )
 			kei2410_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 2410" )
@@ -232,6 +256,9 @@ class CvTab ( QtW.QWidget ) :
 
 		vbox = QtW.QVBoxLayout ( )
 		self.setLayout ( vbox )
+
+		self._serial = SerialEnableWidget ( )
+		vbox.addWidget ( self._serial )
 
 		self._voltsrc = VoltsrcGroupWidget ( )
 		vbox.addWidget ( self._voltsrc )
@@ -274,6 +301,8 @@ class CvTab ( QtW.QWidget ) :
 			self._parent_win.showErrorDialog ( u"Invalid sleep time." )
 			return
 
+		serialenable = self._serial.getStatus ( )
+
 		freq, volt = self._freqsettings.getSettings ( )
 		if not 20 <= freq <= 2e6 :
 			self._parent_win.showErrorDialog ( u"Frequency must be between 20 Hz and 2 MHz." )
@@ -292,6 +321,8 @@ class CvTab ( QtW.QWidget ) :
 			return
 
 		try :
+			if serialenable :
+				useserial.haveserial = True
 			detector = gpib_detect.GPIBDetector ( )
 			kei6517b_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 6517B" )
 			kei2410_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 2410" )
@@ -328,16 +359,15 @@ class StripTab ( QtW.QWidget ) :
 		vbox = QtW.QVBoxLayout ( )
 		self.setLayout ( vbox )
 
+		self._serial = SerialEnableWidget ( )
+		vbox.addWidget ( self._serial )
+
 		self._voltsrc = VoltsrcGroupWidget ( )
 		vbox.addWidget ( self._voltsrc )
 
 		self._freqsettings = FreqGroupWidget ( )
 		vbox.addWidget ( self._freqsettings )
 
-		#hbox = QtW.QHBoxLayout ( )
-		#vbox.addLayout ( hbox )
-		#self._select_r = QtW.QCheckBox ( u"Resistance Measurement" )
-		#hbox.addWidget ( self._select_r )
 		self._stripsettings = StripGroupWidget ( )
 		vbox.addWidget ( self._stripsettings )
 
@@ -376,6 +406,8 @@ class StripTab ( QtW.QWidget ) :
 			self._parent_win.showErrorDialog ( u"Invalid sleep time." )
 			return
 
+		serialenable = self._serial.getStatus ( )
+
 		freq, volt = self._freqsettings.getSettings ( )
 		if not 20 <= freq <= 2e6 :
 			self._parent_win.showErrorDialog ( u"Frequency must be between 20 Hz and 2 MHz." )
@@ -399,6 +431,8 @@ class StripTab ( QtW.QWidget ) :
 			return
 
 		try :
+			if serialenable :
+				useserial.haveserial = True
 			detector = gpib_detect.GPIBDetector ( )
 			kei6517b_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 6517B" )
 			kei2410_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 2410" )
@@ -473,13 +507,12 @@ if __name__ == u"__main__" :
 	if len ( sys.argv ) > 1 and os.path.isdir ( sys.argv[1] ) :
 		output_dir = sys.argv[1]
 	else:
-		#output_dir = os.getcwdu ( )
 		output_dir = os.getcwd ( )
 
 	usage = u"Usage: python %prog [options] <default storage path>"
 	description = u"If no default storage path is specified, the current directory is used."
 	parser = optparse.OptionParser ( usage = usage, description = description )
-	parser.add_option ( u'-d', u'--debug', action = u"store_true", dest = u"debug", help = u"debug flag, enables more verbose console output" )
+	parser.add_option ( u"-d", u"--debug", action = u"store_true", dest = u"debug", help = u"debug flag, enables more verbose console output" )
 	options, args = parser.parse_args ( )
 	logger = logging.getLogger ( u'myLogger' )
 	ch = logging.StreamHandler ( )
@@ -492,6 +525,7 @@ if __name__ == u"__main__" :
 		logger.debug ( u"Running in DEBUG mode!" )
 		logger.debug ( u" Output path is: %s", output_dir )
 
+	useserial.init ( )
 	win = MainWindow ( output_dir )
 	win.show ( )
 	sys.exit ( app.exec_ ( ) )
