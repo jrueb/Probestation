@@ -625,8 +625,11 @@ The read-out computer should be left running, also so that measurement data can 
 \label{sec:additional}
 
 The probe station software can also be used beyond the setup described here.
-For all devices, serial or USB-to-serial connections are usable from a software point of view instead of GPIB connections.
+For all devices, serial or USB-to-serial connections are usable from a software point of view instead of the default GPIB connections.
+Different device connection modes can also be combined.
+In each tab of the software, there is a box which can be checked to enable any form of serial connection.
 The program will automatically detect the correct connection type.
+To speed up operation, it is recommended to not check the box unless serial connections are really needed.
 Furthermore, a Keithley 2410 can be used as an alternative to the Keithley 6517B as a high-voltage source .
 The software detects the model connected and adjusts the commands.
 Beware that if both high-voltage source devices are detected, the software will display an error message, since it is not clear which device should be used.
