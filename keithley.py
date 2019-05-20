@@ -258,6 +258,8 @@ class Keithley2410 ( KeithleyMeter ) :
 class Keithley6485 ( KeithleyMeter ) :
 	def __init__ ( self, resource_name ) :
 		super ( Keithley6485, self ) .__init__ ( resource_name )
+		
+		self._write ( ":SYSTEM:ZCHECK OFF" )
 
 		self._write ( ":SENSE:FUNCTION 'CURRENT:DC'" )
 		self._write ( ":FORMAT:ELEMENTS READING,UNITS" )
