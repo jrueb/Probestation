@@ -3,11 +3,10 @@
 import logging
 import visa
 import time
-import useserial
 import numpy as np
 
 class KeithleyMeter ( object ) :
-	def __init__ ( self, resource_name ) :
+	def __init__ ( self, resource_name, useserial ) :
 		logger = logging.getLogger ( u'myLogger' )
 		resources = [""] * 1
 		try :
@@ -16,7 +15,7 @@ class KeithleyMeter ( object ) :
 		except :
 			logger.debug ( u"  Failed to open ni-visa" )
 		try :
-			if useserial.haveserial :
+			if useserial :
 				rm2 = visa.ResourceManager ( '@py' )
 				resources += rm2.list_resources ( )
 		except :
@@ -24,7 +23,7 @@ class KeithleyMeter ( object ) :
 		if not resource_name in resources :
 			self._connected = False
 			raise ValueError ( "Resource not found {}" .format ( resource_name ) )
-		if resource_name.startswith ( "ASRL" ) and useserial.haveserial :
+		if resource_name.startswith ( "ASRL" ) and useserial :
 			logger.debug ( u"  Opening {} with py-visa." .format ( resource_name ) )
 			# 5000 msecs needed to catch slow devices...
 			self._res = rm2.open_resource ( resource_name, baud_rate = 19200, data_bits = 8, timeout = 5000 )
@@ -54,8 +53,8 @@ class KeithleyMeter ( object ) :
 		return self._res.read ( )
 
 class Keithley6517B ( KeithleyMeter ) :
-	def __init__ ( self, resource_name ) :
-		super ( Keithley6517B, self ) .__init__ ( resource_name )
+	def __init__ ( self, resource_name, useserial ) :
+		super ( Keithley6517B, self ) .__init__ ( resource_name, useserial )
 
 		self._write ( ":SYSTEM:ZCHECK OFF" )
 
@@ -154,8 +153,8 @@ class Keithley6517B ( KeithleyMeter ) :
 		return { "{}_srcvoltage".format ( devname ) : voltage, "{}_current" .format ( devname ) : current }
 
 class Keithley2410 ( KeithleyMeter ) :
-	def __init__ ( self, resource_name ) :
-		super ( Keithley2410, self ) .__init__ ( resource_name )
+	def __init__ ( self, resource_name, useserial ) :
+		super ( Keithley2410, self ) .__init__ ( resource_name, useserial )
 
 		self._write ( ":OUTPUT1:STATE OFF" )
 		self._write ( ":SOURCE:VOLTAGE:RANGE 100" )
@@ -256,8 +255,8 @@ class Keithley2410 ( KeithleyMeter ) :
 		return { "{}_srcvoltage".format ( devname ) : voltage, "{}_current" .format ( devname ) : current }
 
 class Keithley6485 ( KeithleyMeter ) :
-	def __init__ ( self, resource_name ) :
-		super ( Keithley6485, self ) .__init__ ( resource_name )
+	def __init__ ( self, resource_name, useserial ) :
+		super ( Keithley6485, self ) .__init__ ( resource_name, useserial )
 		
 		self._write ( ":SYSTEM:ZCHECK OFF" )
 
@@ -277,5 +276,5 @@ class Keithley6485 ( KeithleyMeter ) :
 		return { "{}_srcvoltage".format ( devname ) : voltage, "{}_current" .format ( devname ) : current }
 
 if __name__ == "__main__" :
-	k = Keithley6517B ( "GPIB0::21::INSTR" )
-	l = Keithley6485 ( "GPIB0::11::INSTR" )
+	k = Keithley6517B ( "GPIB0::21::INSTR", False )
+	l = Keithley6485 ( "GPIB0::11::INSTR", False )

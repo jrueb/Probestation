@@ -4,11 +4,10 @@ from __future__ import absolute_import
 import visa
 import logging
 import serial
-import useserial
 from sys import platform
 
 class GPIBDetector ( object ) :
-	def __init__ ( self ) :
+	def __init__ ( self , useserial ) :
 		logger = logging.getLogger ( u'myLogger' )
 		resources = [""] * 1
 		try :
@@ -17,7 +16,7 @@ class GPIBDetector ( object ) :
 		except :
 			logger.debug ( u"  Failed to open ni-visa" )
 		try :
-			if useserial.haveserial :
+			if useserial :
 			    self._rm2 = visa.ResourceManager ( u'@py' )
 			    resources += self._rm2.list_resources ( )
 		except :
@@ -31,7 +30,7 @@ class GPIBDetector ( object ) :
 				continue
 
 			dev = None
-			if res.startswith ( u"ASRL" ) and useserial.haveserial :
+			if res.startswith ( u"ASRL" ) and useserial :
 				logger.debug ( u"   Opening serial connection to %s", res )
 				try :
 					# 5000 msecs needed to catch slow devices...
@@ -58,7 +57,9 @@ class GPIBDetector ( object ) :
 
 if __name__ == u"__main__" :
 	import pprint
+	import sys
 
-	detector = GPIBDetector ( )
+	logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+	detector = GPIBDetector ( True )
 
 	pprint.pprint ( detector.identifiers )

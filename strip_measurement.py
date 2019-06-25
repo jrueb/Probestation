@@ -44,11 +44,11 @@ class StripMeasurementThread ( MeasurementThread ) :
 		logger.debug ( u" In strip_measurement.py:" )
 
 		try :
-			input_hv = keithley.KeithleyMeter ( args.devname_hv )
+			input_hv = keithley.KeithleyMeter ( args.devname_hv, args.serialenable )
 			if input_hv.identify ( ) .startswith ( u"KEITHLEY INSTRUMENTS INC.,MODEL 6517B" ) :
-				keith_hv = keithley.Keithley6517B ( args.devname_hv )
+				keith_hv = keithley.Keithley6517B ( args.devname_hv, args.serialenable )
 			elif input_hv.identify ( ) .startswith ( u"KEITHLEY INSTRUMENTS INC.,MODEL 2410" ) :
-				keith_hv = keithley.Keithley2410 ( args.devname_hv )
+				keith_hv = keithley.Keithley2410 ( args.devname_hv, args.serialenable )
 			else :
 				errormsg = u"Could not open devices."
 				self.error_signal.emit ( errormsg )
@@ -56,7 +56,7 @@ class StripMeasurementThread ( MeasurementThread ) :
 				self.finished.emit ( os.path.join ( str ( args.output_dir ), fname ) )
 				return
 			logger.info ( u"  Voltage source device introduced itself as {}" .format ( keith_hv.identify ( ) ) )
-			agilentE4980A = agilent.AgilentE4980A ( args.devname_agiE4980A )
+			agilentE4980A = agilent.AgilentE4980A ( args.devname_agiE4980A, args.serialenable )
 			logger.info ( u"LCR meter introduced itself as {}" .format ( agilentE4980A.identify ( ) ) )
 		except VisaIOError :
 			errormsg = u"Could not open devices."

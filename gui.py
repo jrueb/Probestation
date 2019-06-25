@@ -4,11 +4,11 @@ from __future__ import absolute_import
 import logging
 
 try:
-    from PyQt5 import QtWidgets as QtW
-    from PyQt5 import QtCore
+	from PyQt5 import QtWidgets as QtW
+	from PyQt5 import QtCore
 except ImportError as e :
-    from PyQt4 import QtGui as QtW
-    from PyQt4 import QtCore
+	from PyQt4 import QtGui as QtW
+	from PyQt4 import QtCore
 
 import os
 from collections import namedtuple
@@ -18,8 +18,6 @@ import gpib_detect
 from iv_measurement import IvMeasurementWindow
 from cv_measurement import CvMeasurementWindow
 from strip_measurement import StripMeasurementWindow
-
-import useserial
 
 def createSpin ( lower, upper, step, value, decimals, suffix, tooltip = u"" ) :
 	spin = QtW.QDoubleSpinBox ( )
@@ -148,7 +146,21 @@ class DirectoryLayout ( QtW.QHBoxLayout ):
 	def getOutputDir ( self ) :
 		return self._edit.text ( )
 
-MeasurementArgs = namedtuple ( u"MeasurementArgs", [u"type", u"devname_hv", u"devname_kei6485", u"devname_agiE4980A", u"start", u"end", u"step", u"compcurrent", u"guardring", u"resistance", u"frequency", u"deltavolt", u"sleep", u"output_dir"] )
+MeasurementArgs = namedtuple ( u"MeasurementArgs", [u"type",
+													u"useserial",
+													u"devname_hv",
+													u"devname_kei6485",
+													u"devname_agiE4980A",
+													u"start",
+													u"end",
+													u"step",
+													u"compcurrent",
+													u"guardring",
+													u"resistance",
+													u"frequency",
+													u"deltavolt",
+													u"sleep",
+													u"output_dir"] )
 
 class IvTab ( QtW.QWidget ) :
 	def __init__ ( self, parent_win, output_dir ) :
@@ -217,9 +229,7 @@ class IvTab ( QtW.QWidget ) :
 			return
 
 		try :
-			if serialenable :
-				useserial.haveserial = True
-			detector = gpib_detect.GPIBDetector ( )
+			detector = gpib_detect.GPIBDetector ( serialenable )
 			kei6517b_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 6517B" )
 			kei2410_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 2410" )
 			if kei6517b_devname is None :
@@ -245,7 +255,21 @@ class IvTab ( QtW.QWidget ) :
 			self._parent_win.showErrorDialog ( u"Could not connect to GPIB/serial devices." )
 			return
 
-		args = MeasurementArgs ( u"IV", hvdev_devname, kei6485_devname, None, start, end, step, compcurrent, guardring, None, None, None, sleeptime, output_dir )
+		args = MeasurementArgs ( u"IV",
+								 serialenable,
+								 hvdev_devname,
+								 kei6485_devname,
+								 None,
+								 start,
+								 end,
+								 step,
+								 compcurrent,
+								 guardring,
+								 None,
+								 None,
+								 None,
+								 sleeptime,
+								 output_dir )
 		self._parent_win.startMeasurement ( args )
 
 class CvTab ( QtW.QWidget ) :
@@ -321,9 +345,7 @@ class CvTab ( QtW.QWidget ) :
 			return
 
 		try :
-			if serialenable :
-				useserial.haveserial = True
-			detector = gpib_detect.GPIBDetector ( )
+			detector = gpib_detect.GPIBDetector ( serialenable )
 			kei6517b_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 6517B" )
 			kei2410_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 2410" )
 			if kei6517b_devname is None :
@@ -347,7 +369,21 @@ class CvTab ( QtW.QWidget ) :
 			return
 
 		# CV box adds 1KOhm -> compcurrent goes down...
-		args = MeasurementArgs ( u"CV", hvdev_devname, None, agie4980a_devname, start, end, step, compcurrent * 1000.0, None, None, freq, volt, sleeptime, output_dir )
+		args = MeasurementArgs ( u"CV",
+								 serialenable,
+								 hvdev_devname,
+								 None,
+								 agie4980a_devname,
+								 start,
+								 end,
+								 step,
+								 compcurrent * 1000.0,
+								 None,
+								 None,
+								 freq,
+								 volt,
+								 sleeptime,
+								 output_dir )
 		self._parent_win.startMeasurement ( args )
 
 class StripTab ( QtW.QWidget ) :
@@ -431,9 +467,7 @@ class StripTab ( QtW.QWidget ) :
 			return
 
 		try :
-			if serialenable :
-				useserial.haveserial = True
-			detector = gpib_detect.GPIBDetector ( )
+			detector = gpib_detect.GPIBDetector ( serialenable )
 			kei6517b_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 6517B" )
 			kei2410_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 2410" )
 			if kei6517b_devname is None :
@@ -457,7 +491,21 @@ class StripTab ( QtW.QWidget ) :
 			return
 
 		# CV box adds 1KOhm -> compcurrent goes down...
-		args = MeasurementArgs ( u"Strip", hvdev_devname, None, agie4980a_devname, start, end, step, compcurrent * 1000.0, None, resistance, freq, volt, sleeptime, output_dir )
+		args = MeasurementArgs ( u"Strip",
+								 serialenable,
+								 hvdev_devname,
+								 None,
+								 agie4980a_devname,
+								 start,
+								 end,
+								 step,
+								 compcurrent * 1000.0,
+								 None,
+								 resistance,
+								 freq,
+								 volt,
+								 sleeptime,
+								 output_dir )
 		self._parent_win.startMeasurement ( args )
 
 class MainWindow ( QtW.QMainWindow ) :
@@ -525,7 +573,6 @@ if __name__ == u"__main__" :
 		logger.debug ( u"Running in DEBUG mode!" )
 		logger.debug ( u" Output path is: %s", output_dir )
 
-	useserial.init ( )
 	win = MainWindow ( output_dir )
 	win.show ( )
 	sys.exit ( app.exec_ ( ) )

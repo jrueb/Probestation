@@ -42,11 +42,11 @@ class IvMeasurementThread ( MeasurementThread ) :
 		logger.debug ( u" In iv_measurement.py:" )
 
 		try :
-			input_hv = keithley.KeithleyMeter ( args.devname_hv )
+			input_hv = keithley.KeithleyMeter ( args.devname_hv, args.serialenable )
 			if input_hv.identify ( ) .startswith ( u"KEITHLEY INSTRUMENTS INC.,MODEL 6517B" ) :
-				keith_hv = keithley.Keithley6517B ( args.devname_hv )
+				keith_hv = keithley.Keithley6517B ( args.devname_hv, args.serialenable )
 			elif input_hv.identify ( ) .startswith ( u"KEITHLEY INSTRUMENTS INC.,MODEL 2410" ) :
-				keith_hv = keithley.Keithley2410 ( args.devname_hv )
+				keith_hv = keithley.Keithley2410 ( args.devname_hv, args.serialenable )
 			else :
 				errormsg = u"Could not open devices."
 				self.error_signal.emit ( errormsg )
@@ -56,7 +56,7 @@ class IvMeasurementThread ( MeasurementThread ) :
 			logger.info ( u"  Voltage source device introduced itself as {}" .format ( keith_hv.identify ( ) ) )
 			
 			if not args.devname_kei6485 is None and args.guardring :
-				keith6485 = keithley.Keithley6485 ( args.devname_kei6485 )
+				keith6485 = keithley.Keithley6485 ( args.devname_kei6485, args.serialenable )
 				logger.info ( u"  Guard ring device introduced itself as {}" .format ( keith6485.identify ( ) ) )
 			else :
 				keith6485 = None

@@ -3,10 +3,9 @@
 from __future__ import absolute_import
 import logging
 import visa
-import useserial
 
 class AgilentMeter ( object ) :
-	def __init__ ( self, resource_name ) :
+	def __init__ ( self, resource_name, useserial ) :
 		logger = logging.getLogger ( u'myLogger' )
 		try :
 			rm1 = visa.ResourceManager ( )
@@ -14,7 +13,7 @@ class AgilentMeter ( object ) :
 		except :
 			logger.debug ( u"  Failed to open ni-visa" )
 		try :
-			if useserial.haveserial :
+			if useserial :
 				rm2 = visa.ResourceManager ( u'@py' )
 				resources += rm2.list_resources ( )
 		except :
@@ -22,7 +21,7 @@ class AgilentMeter ( object ) :
 		if not resource_name in resources :
 			self._connected = False
 			raise ValueError ( u"Resource not found {}" .format ( resource_name ) )
-		if resource_name.startswith ( u"ASRL" ) and useserial.haveserial :
+		if resource_name.startswith ( u"ASRL" ) and useserial :
 			logger.debug ( u"  Opening {} with py-visa." .format ( resource_name ) )
 			self._res = rm2.open_resource ( resource_name, baud_rate = 19200, data_bits = 8, timeout = 5000 )
 		else :
@@ -43,8 +42,8 @@ class AgilentMeter ( object ) :
 		return self._res.query ( cmd )
 
 class AgilentE4980A ( AgilentMeter ) :
-	def __init__ ( self, resource_name ) :
-		super (AgilentE4980A, self ) .__init__ ( resource_name )
+	def __init__ ( self, resource_name, useserial ) :
+		super (AgilentE4980A, self ) .__init__ ( resource_name, useserial )
 
 		# might need something else for resistance
 		self._write ( u":FUNCTION:IMPEDANCE CPG" )
@@ -94,4 +93,4 @@ def parse_res ( line, devname ) :
 	return ret
 
 if __name__ == u"__main__" :
-	a = AgilentE4980A ( u"GPIB0::20::INSTR" )
+	a = AgilentE4980A ( u"GPIB0::20::INSTR", False )
