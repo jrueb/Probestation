@@ -3,43 +3,17 @@
 from __future__ import absolute_import
 import logging
 import visa
+from visa_probestation_dev import VisaProbestationDev
 
 class AgilentMeter ( object ) :
 	def __init__ ( self, resource_name, useserial ) :
-		logger = logging.getLogger ( u'myLogger' )
-		try :
-			rm1 = visa.ResourceManager ( )
-			resources = rm1.list_resources ( )
-		except :
-			logger.debug ( u"  Failed to open ni-visa" )
-		try :
-			if useserial :
-				rm2 = visa.ResourceManager ( u'@py' )
-				resources += rm2.list_resources ( )
-		except :
-			logger.debug ( u"  Failed to open py-visa" )
-		if not resource_name in resources :
-			self._connected = False
-			raise ValueError ( u"Resource not found {}" .format ( resource_name ) )
-		if resource_name.startswith ( u"ASRL" ) and useserial :
-			logger.debug ( u"  Opening {} with py-visa." .format ( resource_name ) )
-			self._res = rm2.open_resource ( resource_name, baud_rate = 19200, data_bits = 8, timeout = 5000 )
-		else :
-			logger.debug ( u"  Opening {} with ni-visa." .format ( resource_name ) )
-			self._res = rm1.open_resource ( resource_name )
-		self._connected = True
+		super ( AgilentMeter, self ) .__init__ ( resource_name, useserial )
 
 		self._write ( u"*RST; *CLS" )
 		self._write ( u":FORMAT:ASCII:LONG ON" )
 
 	def identify ( self ) :
 		return self._query ( u"*IDN?" ) .strip ( )
-
-	def _write ( self, cmd ) :
-		self._res.write ( cmd )
-
-	def _query ( self, cmd ) :
-		return self._res.query ( cmd )
 
 class AgilentE4980A ( AgilentMeter ) :
 	def __init__ ( self, resource_name, useserial ) :

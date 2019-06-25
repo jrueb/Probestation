@@ -4,53 +4,19 @@ import logging
 import visa
 import time
 import numpy as np
+from visa_probestation_dev import VisaProbestationDev
 
-class KeithleyMeter ( object ) :
+class KeithleyMeter ( VisaProbestationDev ) :
 	def __init__ ( self, resource_name, useserial ) :
-		logger = logging.getLogger ( u'myLogger' )
-		resources = [""] * 1
-		try :
-			rm1 = visa.ResourceManager ( )
-			resources = rm1.list_resources ( )
-		except :
-			logger.debug ( u"  Failed to open ni-visa" )
-		try :
-			if useserial :
-				rm2 = visa.ResourceManager ( '@py' )
-				resources += rm2.list_resources ( )
-		except :
-			logger.debug ( u"  Failed to open py-visa" )
-		if not resource_name in resources :
-			self._connected = False
-			raise ValueError ( "Resource not found {}" .format ( resource_name ) )
-		if resource_name.startswith ( "ASRL" ) and useserial :
-			logger.debug ( u"  Opening {} with py-visa." .format ( resource_name ) )
-			# 5000 msecs needed to catch slow devices...
-			self._res = rm2.open_resource ( resource_name, baud_rate = 19200, data_bits = 8, timeout = 5000 )
-		else :
-			logger.debug ( u"  Opening {} with ni-visa." .format ( resource_name ) )
-			self._res = rm1.open_resource ( resource_name )
-		self._connected = True
+		super ( KeithleyMeter, self ).__init__ ( resource_name, useserial )
 
 		self._write ( "*RST" )
-
+		
 	def identify ( self ) :
 		return self._query ( "*IDN?" ) .strip ( )
 
 	def get_reading ( self ) :
 		return self._query ( "READ?" ) .strip ( )
-
-	def _write ( self, cmd ) :
-		self._res.write ( cmd )
-
-	def _query ( self, cmd ) :
-		return self._res.query ( cmd )
-
-	def _query_ascii_values ( self, cmd ) :
-		return self._res.query_ascii_values ( cmd )
-
-	def _read ( self ) :
-		return self._res.read ( )
 
 class Keithley6517B ( KeithleyMeter ) :
 	def __init__ ( self, resource_name, useserial ) :
