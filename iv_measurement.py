@@ -42,6 +42,14 @@ class IvMeasurementThread ( MeasurementThread ) :
 		logger.debug ( u" In iv_measurement.py:" )
 
 		try :
+			if args.devname_ardenv:
+				if not self._init_envsensor ( ):
+					errormsg = u"Could not open envirovment sensor device."
+					self.error_signal.emit ( errormsg )
+					logger.error ( errormsg )
+					self.finished.emit ( os.path.join ( str ( args.output_dir ), fname ) )
+				logger.info ( u"  Envirovment sensor device introduced itself as {}" .format ( self._envsensor.identify ( ) ) )
+			
 			input_hv = keithley.KeithleyMeter ( args.devname_hv, args.serialenable )
 			if input_hv.identify ( ) .startswith ( u"KEITHLEY INSTRUMENTS INC.,MODEL 6517B" ) :
 				keith_hv = keithley.Keithley6517B ( args.devname_hv, args.serialenable )
@@ -89,6 +97,8 @@ class IvMeasurementThread ( MeasurementThread ) :
 					if self._exiting :
 						break
 
+					if args.devname_ardenv:
+						env = self._measure_enviroment ( )
 					line = keith_hv.get_reading ( )
 					meas = keith_hv.parse_iv ( line, u"keihv" )
 					if ( not u"keihv_srcvoltage" in meas or not u"keihv_current" in meas or meas[u"keihv_srcvoltage"] is None or meas[u"keihv_current"] is None ) :

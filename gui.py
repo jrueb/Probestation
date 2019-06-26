@@ -30,20 +30,23 @@ def createSpin ( lower, upper, step, value, decimals, suffix, tooltip = u"" ) :
 		spin.setToolTip ( tooltip )
 	return spin
 
-class SerialEnableWidget ( QtW.QGroupBox ) :
+class GeneralOptionsWidget ( QtW.QGroupBox ) :
 	def __init__ ( self ) :
-		super ( SerialEnableWidget, self ) .__init__ ( u"Device communication" )
+		super ( GeneralOptionsWidget, self ) .__init__ ( u"Device communication" )
 
 		form = QtW.QFormLayout ( )
 		self.setLayout ( form )
 
 		self._serialenable_cb = QtW.QCheckBox ( )
-
 		form.addRow ( u"Enable serial device connection", self._serialenable_cb )
+		
+		self._envsensorsenable_cb = QtW.QCheckBox ( )
+		form.addRow ( u"Enable enviroment sensors", self._envsensorsenable_cb )
 
 	def getStatus ( self ) :
 		enableserial = self._serialenable_cb.isChecked ( )
-		return ( enableserial )
+		enableenvsensors = self._envsensorsenable_cb.isChecked ( )
+		return ( enableserial, enableenvsensors )
 
 class VoltsrcGroupWidget ( QtW.QGroupBox ) :
 	def __init__ ( self ) :
@@ -148,6 +151,7 @@ class DirectoryLayout ( QtW.QHBoxLayout ):
 
 MeasurementArgs = namedtuple ( u"MeasurementArgs", [u"type",
 													u"useserial",
+													u"devname_ardenv"
 													u"devname_hv",
 													u"devname_kei6485",
 													u"devname_agiE4980A",
@@ -171,8 +175,8 @@ class IvTab ( QtW.QWidget ) :
 		vbox = QtW.QVBoxLayout ( )
 		self.setLayout ( vbox )
 
-		self._serial = SerialEnableWidget ( )
-		vbox.addWidget ( self._serial )
+		self._general = GeneralOptionsWidget ( )
+		vbox.addWidget ( self._general )
 
 		self._voltsrc = VoltsrcGroupWidget ( )
 		vbox.addWidget ( self._voltsrc )
@@ -215,7 +219,7 @@ class IvTab ( QtW.QWidget ) :
 			self._parent_win.showErrorDialog ( u"Invalid sleep time." )
 			return
 
-		serialenable = self._serial.getStatus ( )
+		serialenable, envsensorsenable = self._general.getStatus ( )
 
 		guardring = self._guard.getStatus ( )
 
@@ -230,6 +234,13 @@ class IvTab ( QtW.QWidget ) :
 
 		try :
 			detector = gpib_detect.GPIBDetector ( serialenable )
+			if envsensorsenable:
+				devname_ardenv = detector.get_resname_for ( u"Arduino Probestation Enviroment Sensoring" )
+				if devname_ardenv is None:
+					self._parent_win.showErrorDialog ( u"Could not find an Arduino for enviroment sensoring" )
+					return
+			else:
+				devname_ardenv = None
 			kei6517b_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 6517B" )
 			kei2410_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 2410" )
 			if kei6517b_devname is None :
@@ -257,6 +268,7 @@ class IvTab ( QtW.QWidget ) :
 
 		args = MeasurementArgs ( u"IV",
 								 serialenable,
+								 devname_ardenv,
 								 hvdev_devname,
 								 kei6485_devname,
 								 None,
@@ -281,8 +293,8 @@ class CvTab ( QtW.QWidget ) :
 		vbox = QtW.QVBoxLayout ( )
 		self.setLayout ( vbox )
 
-		self._serial = SerialEnableWidget ( )
-		vbox.addWidget ( self._serial )
+		self._general = GeneralOptionsWidget ( )
+		vbox.addWidget ( self._general )
 
 		self._voltsrc = VoltsrcGroupWidget ( )
 		vbox.addWidget ( self._voltsrc )
@@ -325,7 +337,7 @@ class CvTab ( QtW.QWidget ) :
 			self._parent_win.showErrorDialog ( u"Invalid sleep time." )
 			return
 
-		serialenable = self._serial.getStatus ( )
+		serialenable, envsensorsenable = self._general.getStatus ( )
 
 		freq, volt = self._freqsettings.getSettings ( )
 		if not 20 <= freq <= 2e6 :
@@ -346,6 +358,13 @@ class CvTab ( QtW.QWidget ) :
 
 		try :
 			detector = gpib_detect.GPIBDetector ( serialenable )
+			if envsensorsenable:
+				devname_ardenv = detector.get_resname_for ( u"Arduino Probestation Enviroment Sensoring" )
+				if devname_ardenv is None:
+					self._parent_win.showErrorDialog ( u"Could not find an Arduino for enviroment sensoring" )
+					return
+			else:
+				devname_ardenv = None
 			kei6517b_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 6517B" )
 			kei2410_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 2410" )
 			if kei6517b_devname is None :
@@ -371,6 +390,7 @@ class CvTab ( QtW.QWidget ) :
 		# CV box adds 1KOhm -> compcurrent goes down...
 		args = MeasurementArgs ( u"CV",
 								 serialenable,
+								 devname_ardenv,
 								 hvdev_devname,
 								 None,
 								 agie4980a_devname,
@@ -395,8 +415,8 @@ class StripTab ( QtW.QWidget ) :
 		vbox = QtW.QVBoxLayout ( )
 		self.setLayout ( vbox )
 
-		self._serial = SerialEnableWidget ( )
-		vbox.addWidget ( self._serial )
+		self._general = GeneralOptionsWidget ( )
+		vbox.addWidget ( self._general )
 
 		self._voltsrc = VoltsrcGroupWidget ( )
 		vbox.addWidget ( self._voltsrc )
@@ -442,7 +462,7 @@ class StripTab ( QtW.QWidget ) :
 			self._parent_win.showErrorDialog ( u"Invalid sleep time." )
 			return
 
-		serialenable = self._serial.getStatus ( )
+		serialenable, envsensorsenable = self._general.getStatus ( )
 
 		freq, volt = self._freqsettings.getSettings ( )
 		if not 20 <= freq <= 2e6 :
@@ -468,6 +488,13 @@ class StripTab ( QtW.QWidget ) :
 
 		try :
 			detector = gpib_detect.GPIBDetector ( serialenable )
+			if envsensorsenable:
+				devname_ardenv = detector.get_resname_for ( u"Arduino Probestation Enviroment Sensoring" )
+				if devname_ardenv is None:
+					self._parent_win.showErrorDialog ( u"Could not find an Arduino for enviroment sensoring" )
+					return
+			else:
+				devname_ardenv = None
 			kei6517b_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 6517B" )
 			kei2410_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 2410" )
 			if kei6517b_devname is None :
@@ -493,6 +520,7 @@ class StripTab ( QtW.QWidget ) :
 		# CV box adds 1KOhm -> compcurrent goes down...
 		args = MeasurementArgs ( u"Strip",
 								 serialenable,
+								 devname_ardenv,
 								 hvdev_devname,
 								 None,
 								 agie4980a_devname,

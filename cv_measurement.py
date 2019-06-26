@@ -43,6 +43,14 @@ class CvMeasurementThread ( MeasurementThread ) :
 		logger.debug ( u" In cv_measurement.py:" )
 
 		try :
+			if args.devname_ardenv:
+				if not self._init_envsensor ( ):
+					errormsg = u"Could not open envirovment sensor device."
+					self.error_signal.emit ( errormsg )
+					logger.error ( errormsg )
+					self.finished.emit ( os.path.join ( str ( args.output_dir ), fname ) )
+				logger.info ( u"  Envirovment sensor device introduced itself as {}" .format ( self._envsensor.identify ( ) ) )
+			
 			input_hv = keithley.KeithleyMeter ( args.devname_hv, args.serialenable )
 			if input_hv.identify ( ) .startswith ( u"KEITHLEY INSTRUMENTS INC.,MODEL 6517B" ) :
 				keith_hv = keithley.Keithley6517B ( args.devname_hv, args.serialenable )
@@ -86,6 +94,8 @@ class CvMeasurementThread ( MeasurementThread ) :
 					if self._exiting :
 						break
 
+					if args.devname_ardenv:
+						env = self._measure_enviroment ( )
 					line = agilentE4980A.get_reading ( )
 					meas = agilent.parse_cgv ( line, u"agie4980a" )
 					meas[u"keihv_srcvoltage"] = keivolt

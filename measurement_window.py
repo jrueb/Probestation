@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 try:
     from PyQt5 import QtWidgets as QtW
@@ -11,10 +12,12 @@ except ImportError as e :
 
 from matplotlib.figure import Figure
 import numpy as np
+import arduinoenv
 
 class MeasurementThread ( QtCore.QThread ) :
 	error_signal = QtCore.pyqtSignal ( str )
 	measurement_ready = QtCore.pyqtSignal ( tuple )
+	envmeasurement_ready = QtCore.pyqtSignal ( tuple )
 	finished = QtCore.pyqtSignal ( str )
 
 	def __init__ ( self, args ) :
@@ -28,6 +31,37 @@ class MeasurementThread ( QtCore.QThread ) :
 	def quit_and_wait ( self ) :
 		self._exiting = True
 		self.wait ( )
+		
+	def _init_envsensor ( self ):
+		self._envsensor = arduinoenv ( self.args.devname_ardenv )
+		idn = self._envsensor.identify ( )
+		if not idn.startswith ( u"Arduino Probestation Enviroment Sensoring" ) :
+			return False
+		logger.info ( u"  Envirovment sensor device introduced itself as {}" .format ( keith_hv.identify ( ) ) )
+		
+		return True
+		
+	def _measure_enviroment ( self ):
+		# Query both sensors
+		reading = self._envsensor.get_reading ( )
+		read1 = ",".join(reading.split(",")[:4])
+		read2 = ",".join(reading.split(",")[4:])
+		
+		reading = self._envsensor.parse_tphr(read1, "envsensor1")
+		reading.update(self._envsensor.parse_tphr(read2, "envsensor2"))
+		
+		dewpoints = {
+			"envsensor1_dewpoint": self._envsensor.get_dewpoint(reading["envsensor1_temperature", "envsensor1_humidity"]),
+			"envsensor2_dewpoint": self._envsensor.get_dewpoint(reading["envsensor2_temperature", "envsensor2_humidity"])
+		}
+		reading.update(dewpoints)
+		
+		self.envmeasurement_ready.emit ( ( reading["envsensor1_temperature"],
+										   reading["envsensor1_dewpoint"],
+										   reading["envsensor2_temperature"],
+										   reading["envsensor2_dewpoint"] ) )
+		
+		return reading
 
 class MeasurementWindow ( QtW.QWidget ) :
 	def __init__ ( self, parent, num_plots, args, thread ) :
@@ -49,8 +83,16 @@ class MeasurementWindow ( QtW.QWidget ) :
 
 		self._figure = Figure ( figsize = ( 5, 3 ) )
 		dynamic_canvas = FigureCanvas ( self._figure )
+		policy = QtW.QSizePolicy ( QtW.QSizePolicy.Preferred, QtW.QSizePolicy.Expanding )
+		dynamic_canvas.setSizePolicy ( policy )
 		layout.addWidget ( NavigationToolbar ( dynamic_canvas, self ) )
 		layout.addWidget ( dynamic_canvas )
+		
+		self._env_label = QtW.QLabel ( )
+		layout.addWidget ( self._env_label )
+		if args.devname_ardenv is None:
+			self._env_label.hide ( )
+		self._thread.envmeasurement_ready.connect ( self._on_env_measured )
 
 		hbox = QtW.QHBoxLayout ( )
 		layout.addLayout ( hbox )
@@ -89,6 +131,9 @@ class MeasurementWindow ( QtW.QWidget ) :
 
 	def _stop_clicked ( self ) :
 		self._thread.quit_and_wait ( )
+		
+	def _on_env_measured ( self, measurement ):
+		self._env_label.set_text ( "T1 = {:.1f} °C, Dewpoint1 = {:.1f} °C, T2 = {:.1f} °C, Dewpoint2 = {:.1f} °C".format(*measurement) )
 
 	def add_point ( self, point ) :
 		self._x.append ( point[0] )
