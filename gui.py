@@ -165,80 +165,78 @@ MeasurementArgs = namedtuple ( u"MeasurementArgs", [u"type",
 													u"deltavolt",
 													u"sleep",
 													u"output_dir"] )
-
-class IvTab ( QtW.QWidget ) :
+													
+class MeasurementSetttingsError ( RuntimeError ) :
+	pass
+													
+class MeasurementTab ( QtW.QWidget ) :
 	def __init__ ( self, parent_win, output_dir ) :
-		super ( IvTab, self ) .__init__ ( )
-
+		super ( MeasurementTab, self ).__init__ ( )
+		
 		self._parent_win = parent_win
-
-		vbox = QtW.QVBoxLayout ( )
-		self.setLayout ( vbox )
-
+		
+		self._vbox = QtW.QVBoxLayout ( )
+		self.setLayout ( self._vbox )
+		
 		self._general = GeneralOptionsWidget ( )
-		vbox.addWidget ( self._general )
-
+		self._vbox.addWidget ( self._general )
+		
 		self._voltsrc = VoltsrcGroupWidget ( )
-		vbox.addWidget ( self._voltsrc )
-
-		self._guard = GuardMeasWidget ( )
-		vbox.addWidget ( self._guard )
-
-		vbox.addStretch ( 1 )
-
+		self._vbox.addWidget ( self._voltsrc )
+		
+		self._vbox.addStretch ( 1 )
+		
+		self._bottombox = QtW.QVBoxLayout ( )
+		self._vbox.addLayout ( self._bottombox )
+		
 		self._browse_layout = DirectoryLayout ( output_dir, self._parent_win )
-		vbox.addLayout ( self._browse_layout )
-
+		self._bottombox.addLayout ( self._browse_layout )
+		
 		hbox = QtW.QHBoxLayout ( )
 		hbox.addStretch ( 1 )
-		vbox.addLayout ( hbox )
+		self._bottombox.addLayout ( hbox )
 		self._start_button = QtW.QPushButton ( u"Start" )
 		self._start_button.setToolTip ( u"Start the measurement" )
 		self._start_button.resize ( self._start_button.sizeHint ( ) )
 		self._start_button.clicked.connect ( self._onStartClicked )
 		hbox.addWidget ( self._start_button )
-
-	def _onStartClicked ( self ) :
-		if self._parent_win.measurementIsRunning ( ) :
-			self._parent_win.showErrorDialog ( u"Measurement is currently running." )
-			return
-
-		if not options.debug :
-			check = QtW.QMessageBox.question ( self, u"Warning", u"Is the CV/IV box set to IV?", QtW.QMessageBox.Yes, QtW.QMessageBox.No )
-			if check == QtW.QMessageBox.No :
-				return
-
+		
+	def _addToCenter ( self, obj ) :
+		if isinstance ( obj, QtW.QWidget ) :
+			self._vbox.insertWidget ( self._vbox.count ( ) - 2, obj )
+		else:
+			self._vbox.insertLayout ( self._vbox.count ( ) - 2, obj )
+		
+	def _addToBottom ( self, obj ) :
+		if isinstance ( obj, QtW.QWidget ) :
+			self._bottombox.insertWidget ( self._bottombox.count ( ) - 2, obj )
+		else:
+			self._bottombox.insertLayout ( self._bottombox.count ( ) - 2, obj )
+			
+	def _setupMeasurement ( self ) :
 		start, end, step, sleeptime, compcurrent = self._voltsrc.getVoltages ( )
 		if step <= 0 :
-			self._parent_win.showErrorDialog ( u"Abs step needs to be positive." )
-			return
+			raise MeasurementSetttingsError ( u"Abs step needs to be positive." )
 		if abs ( start ) > 1000 or abs ( end ) > 1000 :
-			self._parent_win.showErrorDialog ( u"Voltage can't be larger than 1000 V." )
-			return
+			raise MeasurementSetttingsError ( u"Voltage can't be larger than 1000 V." )
 		if not 0 <= sleeptime :
-			self._parent_win.showErrorDialog ( u"Invalid sleep time." )
-			return
-
+			raise MeasurementSetttingsError ( u"Invalid sleep time." )
+			
 		serialenable, envsensorsenable = self._general.getStatus ( )
-
-		guardring = self._guard.getStatus ( )
-
+		
 		if compcurrent <= 0 :
-			self._parent_win.showErrorDialog ( u"Compliance current needs to be positive." )
-			return
-
+			raise MeasurementSetttingsError ( u"Compliance current needs to be positive." )
+			
 		output_dir = self._browse_layout.getOutputDir ( )
 		if not os.path.isdir ( output_dir ) or not os.access ( output_dir, os.W_OK ) :
-			self._parent_win.showErrorDialog ( u"Invalid output directory." )
-			return
-
+			raise MeasurementSetttingsError ( u"Invalid output directory." )
+			
 		try :
 			detector = gpib_detect.GPIBDetector ( serialenable )
 			if envsensorsenable:
 				devname_ardenv = detector.get_resname_for ( u"Arduino Probestation Enviroment Sensoring" )
 				if devname_ardenv is None:
-					self._parent_win.showErrorDialog ( u"Could not find an Arduino for enviroment sensoring" )
-					return
+					raise MeasurementSetttingsError ( u"Could not find an Arduino for enviroment sensoring" )
 			else:
 				devname_ardenv = None
 			kei6517b_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 6517B" )
@@ -250,291 +248,167 @@ class IvTab ( QtW.QWidget ) :
 				hvdev_devname = kei6517b_devname
 				logger.debug ( u"  Couldn't find Keithley 2410, trying Keithley 6517B for HV." )
 			if ( kei6517b_devname is not None and kei2410_devname is not None) :
-				self._parent_win.showErrorDialog ( u"I found both Keithley 6517B and Keithley 2410!<br><br>I don't know which to use!" )
-				return
+				raise MeasurementSetttingsError ( u"I found both Keithley 6517B and Keithley 2410!<br><br>I don't know which to use!" )
 			if ( kei6517b_devname is None and kei2410_devname is None ) :
-				self._parent_win.showErrorDialog ( u"Could not find Keithley 6517B or Keithley 2410." )
+				raise MeasurementSetttingsError ( u"Could not find Keithley 6517B or Keithley 2410." )
+			else :
+				kei6485_devname = None
+		except VisaIOError :
+			raise MeasurementSetttingsError ( u"Could not connect to GPIB/serial devices." )
+				
+		args = MeasurementArgs ( None, # type
+								 serialenable, # useserial
+								 devname_ardenv, # devname_ardenv
+								 None, # devname_hv
+								 None, # devname_kei6485
+								 None, # devname_agiE4980A
+								 start, # start
+								 end, # end
+								 step, # step
+								 compcurrent, # compcurrent
+								 None, # guardring
+								 None, # resistance
+								 None, # frequency
+								 None, # deltavolt
+								 sleeptime, # sleep
+								 output_dir ) # output_dir
+			
+		return args
+		
+	def _onStartClicked ( self, warning = None ) :
+		if self._parent_win.measurementIsRunning ( ) :
+			self._parent_win.showErrorDialog ( u"Measurement is currently running." )
+			return
+
+		if not options.debug and warning:
+			check = QtW.QMessageBox.question ( self, u"Warning", warning, QtW.QMessageBox.Yes, QtW.QMessageBox.No )
+			if check == QtW.QMessageBox.No :
 				return
+				
+		try:
+			args = self._setupMeasurement ( )
+		except MeasurementSetttingsError as e:
+			self._parent_win.showErrorDialog ( str ( e ) )
+			return
+		
+		self._parent_win.startMeasurement ( args )
+
+class IvTab ( MeasurementTab ) :
+	def __init__ ( self, parent_win, output_dir ) :
+		super ( IvTab, self ) .__init__ ( parent_win, output_dir )
+
+		self._guard = GuardMeasWidget ( )
+		self._addToCenter ( self._guard )
+		
+	def _setupMeasurement ( self ):
+		args = super ( IvTab, self ) ._setupMeasurement ( ) ._asdict ( )
+		args = dict ( args )
+		
+		guardring = self._guard.getStatus ( )
+		
+		try:
 			if guardring :
 				kei6485_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 6485" )
 				if kei6485_devname is None :
 					self._parent_win.showErrorDialog ( u"Could not find Keithley 6485." )
 					return
-			else :
-				kei6485_devname = None
-		except VisaIOError :
-			self._parent_win.showErrorDialog ( u"Could not connect to GPIB/serial devices." )
-			return
+		except VisaIOError:
+			raise MeasurementSetttingsError ( u"Could not connect to GPIB/serial devices." )
 
-		args = MeasurementArgs ( u"IV",
-								 serialenable,
-								 devname_ardenv,
-								 hvdev_devname,
-								 kei6485_devname,
-								 None,
-								 start,
-								 end,
-								 step,
-								 compcurrent,
-								 guardring,
-								 None,
-								 None,
-								 None,
-								 sleeptime,
-								 output_dir )
-		self._parent_win.startMeasurement ( args )
-
-class CvTab ( QtW.QWidget ) :
-	def __init__ ( self, parent_win, output_dir ) :
-		super ( CvTab, self ) .__init__ ( )
-
-		self._parent_win = parent_win
-
-		vbox = QtW.QVBoxLayout ( )
-		self.setLayout ( vbox )
-
-		self._general = GeneralOptionsWidget ( )
-		vbox.addWidget ( self._general )
-
-		self._voltsrc = VoltsrcGroupWidget ( )
-		vbox.addWidget ( self._voltsrc )
-
-		self._freqsettings = FreqGroupWidget ( )
-		vbox.addWidget ( self._freqsettings )
-
-		vbox.addStretch ( 1 )
-
-		self._browse_layout = DirectoryLayout ( output_dir, self._parent_win )
-		vbox.addLayout ( self._browse_layout )
-
-		hbox = QtW.QHBoxLayout ( )
-		hbox.addStretch ( 1 )
-		vbox.addLayout ( hbox )
-		self._start_button = QtW.QPushButton ( u"Start" )
-		self._start_button.setToolTip ( u"Start the measurement" )
-		self._start_button.resize ( self._start_button.sizeHint ( ) )
-		self._start_button.clicked.connect ( self._onStartClicked )
-		hbox.addWidget ( self._start_button )
+		args["type"] = u"IV"
+		args["guardring"] = guardring
+		args["devname_kei6485"] = kei6485_devname
+		
+		return MeasurementArgs ( **args )
+		
 
 	def _onStartClicked ( self ) :
-		if self._parent_win.measurementIsRunning ( ) :
-			self._parent_win.showErrorDialog ( u"Measurement is currently running." )
-			return
+		super( IvTab, self ) ._onStartClicked ( u"Is the CV/IV box set to IV?" )
 
-		if not options.debug :
-			check = QtW.QMessageBox.question ( self, u"Warning", u"Is the CV/IV box set to both CV and External?", QtW.QMessageBox.Yes, QtW.QMessageBox.No )
-			if check == QtW.QMessageBox.No :
-				return
+class CvTab ( MeasurementTab ) :
+	def __init__ ( self, parent_win, output_dir ) :
+		super ( CvTab, self ) .__init__ ( parent_win, output_dir )
 
-		start, end, step, sleeptime, compcurrent = self._voltsrc.getVoltages ( )
-		if step <= 0 :
-			self._parent_win.showErrorDialog ( u"Abs step needs to be positive." )
-			return
-		if abs ( start ) > 1000 or abs ( end ) > 1000 :
-			self._parent_win.showErrorDialog ( u"Voltage can't be larger than 1000 V." )
-			return
-		if not 0 <= sleeptime :
-			self._parent_win.showErrorDialog ( u"Invalid sleep time." )
-			return
-
-		serialenable, envsensorsenable = self._general.getStatus ( )
-
+		self._freqsettings = FreqGroupWidget ( )
+		self._addToCenter ( self._freqsettings )
+		
+	def _setupMeasurement ( self ):
+		args = super ( CvTab, self ) ._setupMeasurement ( ) ._asdict ( )
+		args = dict ( args )
+		
 		freq, volt = self._freqsettings.getSettings ( )
 		if not 20 <= freq <= 2e6 :
-			self._parent_win.showErrorDialog ( u"Frequency must be between 20 Hz and 2 MHz." )
+			raise MeasurementSetttingsError ( u"Frequency must be between 20 Hz and 2 MHz." )
 			return
 		if not 0 <= volt <= 20 :
-			self._parent_win.showErrorDialog ( u"AC voltage must be between 0 V and 20 V." )
+			raise MeasurementSetttingsError ( u"AC voltage must be between 0 V and 20 V." )
 			return
-
-		if compcurrent <= 0 :
-			self._parent_win.showErrorDialog ( u"Compliance current needs to be positive." )
-			return
-
-		output_dir = self._browse_layout.getOutputDir ( )
-		if not os.path.isdir ( output_dir ) or not os.access ( output_dir, os.W_OK ) :
-			self._parent_win.showErrorDialog ( u"Invalid output directory." )
-			return
-
-		try :
-			detector = gpib_detect.GPIBDetector ( serialenable )
-			if envsensorsenable:
-				devname_ardenv = detector.get_resname_for ( u"Arduino Probestation Enviroment Sensoring" )
-				if devname_ardenv is None:
-					self._parent_win.showErrorDialog ( u"Could not find an Arduino for enviroment sensoring" )
-					return
-			else:
-				devname_ardenv = None
-			kei6517b_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 6517B" )
-			kei2410_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 2410" )
-			if kei6517b_devname is None :
-				hvdev_devname = kei2410_devname
-				logger.debug ( u"  Couldn't find Keithley 6517B, trying Keithley 2410 for HV." )
-			if kei2410_devname is None :
-				hvdev_devname = kei6517b_devname
-				logger.debug ( u"  Couldn't find Keithley 2410, trying Keithley 6517B for HV." )
-			if ( kei6517b_devname is not None and kei2410_devname is not None) :
-				self._parent_win.showErrorDialog ( u"I found both Keithley 6517B and Keithley 2410!<br><br>I don't know which to use!" )
-				return
-			if ( kei6517b_devname is None and kei2410_devname is None ) :
-				self._parent_win.showErrorDialog ( u"Could not find Keithley 6517B or Keithley 2410." )
-				return
+		
+		try:
 			agie4980a_devname = detector.get_resname_for ( u"Agilent Technologies,E4980A" )
 			if agie4980a_devname is None :
-				self._parent_win.showErrorDialog ( u"Could not find Agilent E4980A." )
+				raise MeasurementSetttingsError ( u"Could not find Agilent E4980A." )
 				return
-		except VisaIOError :
-			self._parent_win.showErrorDialog ( u"Could not connect to GPIB/serial devices." )
-			return
+		except VisaIOError:
+			raise MeasurementSetttingsError ( u"Could not connect to GPIB/serial devices." )
 
-		# CV box adds 1KOhm -> compcurrent goes down...
-		args = MeasurementArgs ( u"CV",
-								 serialenable,
-								 devname_ardenv,
-								 hvdev_devname,
-								 None,
-								 agie4980a_devname,
-								 start,
-								 end,
-								 step,
-								 compcurrent * 1000.0,
-								 None,
-								 None,
-								 freq,
-								 volt,
-								 sleeptime,
-								 output_dir )
-		self._parent_win.startMeasurement ( args )
-
-class StripTab ( QtW.QWidget ) :
-	def __init__ ( self, parent_win, output_dir ) :
-		super ( StripTab, self ) .__init__ ( )
-
-		self._parent_win = parent_win
-
-		vbox = QtW.QVBoxLayout ( )
-		self.setLayout ( vbox )
-
-		self._general = GeneralOptionsWidget ( )
-		vbox.addWidget ( self._general )
-
-		self._voltsrc = VoltsrcGroupWidget ( )
-		vbox.addWidget ( self._voltsrc )
-
-		self._freqsettings = FreqGroupWidget ( )
-		vbox.addWidget ( self._freqsettings )
-
-		self._stripsettings = StripGroupWidget ( )
-		vbox.addWidget ( self._stripsettings )
-
-		vbox.addStretch ( 1 )
-
-		self._browse_layout = DirectoryLayout ( output_dir, self._parent_win )
-		vbox.addLayout ( self._browse_layout )
-
-		hbox = QtW.QHBoxLayout ( )
-		hbox.addStretch ( 1 )
-		vbox.addLayout ( hbox )
-		self._start_button = QtW.QPushButton ( u"Start" )
-		self._start_button.setToolTip ( u"Start the measurement" )
-		self._start_button.resize ( self._start_button.sizeHint ( ) )
-		self._start_button.clicked.connect ( self._onStartClicked )
-		hbox.addWidget ( self._start_button )
+		args["type"] = u"CV"
+		args["compcurrent"] *= 1000.0 # CV box adds 1KOhm -> compcurrent goes down...
+		args["frequency"] = freq
+		args["deltavolt"] = volt
+		args["devname_agiE4980A"] = agie4980a_devname
+		
+		return MeasurementArgs ( **args )
 
 	def _onStartClicked ( self ) :
-		if self._parent_win.measurementIsRunning ( ) :
-			self._parent_win.showErrorDialog ( u"Measurement is currently running." )
-			return
+		super( CvTab, self ) ._onStartClicked ( u"Is the CV/IV box set to both CV and External?" )
 
-		if not options.debug :
-			check = QtW.QMessageBox.question ( self, u"Warning", u"Is the CV/IV box set to both IV and C<sub>int</sub>/R<sub>int</sub>?", QtW.QMessageBox.Yes, QtW.QMessageBox.No )
-			if check == QtW.QMessageBox.No :
-				return
+class StripTab ( MeasurementTab ) :
+	def __init__ ( self, parent_win, output_dir ) :
+		super ( StripTab, self ) .__init__ ( parent_win, output_dir )
 
-		start, end, step, sleeptime, compcurrent = self._voltsrc.getVoltages ( )
-		if step <= 0 :
-			self._parent_win.showErrorDialog ( u"Abs step needs to be positive." )
-			return
-		if abs ( start ) > 1000 or abs ( end ) > 1000 :
-			self._parent_win.showErrorDialog ( u"Voltage can't be larger than 1000 V." )
-			return
-		if not 0 <= sleeptime :
-			self._parent_win.showErrorDialog ( u"Invalid sleep time." )
-			return
-
-		serialenable, envsensorsenable = self._general.getStatus ( )
-
+		self._freqsettings = FreqGroupWidget ( )
+		self._addToCenter ( self._freqsettings )
+		
+		self._stripsettings = StripGroupWidget ( )
+		self._addToCenter ( self._stripsettings )
+		
+	def _setupMeasurement ( self ):
+		args = super ( StripTab, self ) ._setupMeasurement ( ) ._asdict ( )
+		args = dict ( args )
+		
 		freq, volt = self._freqsettings.getSettings ( )
 		if not 20 <= freq <= 2e6 :
-			self._parent_win.showErrorDialog ( u"Frequency must be between 20 Hz and 2 MHz." )
+			raise MeasurementSetttingsError ( u"Frequency must be between 20 Hz and 2 MHz." )
 			return
 		if not 0 <= volt <= 20 :
-			self._parent_win.showErrorDialog ( u"AC voltage must be between 0 V and 20 V." )
+			raise MeasurementSetttingsError ( u"AC voltage must be between 0 V and 20 V." )
 			return
-
+		
 		if ( self._stripsettings.getSettings ( ) == u"Resistance/Impedance" ) :
 			resistance = True
 		else :
 			resistance = False
-
-		if compcurrent <= 0 :
-			self._parent_win.showErrorDialog ( u"Compliance current needs to be positive." )
-			return
-
-		output_dir = self._browse_layout.getOutputDir ( )
-		if not os.path.isdir ( output_dir ) or not os.access ( output_dir, os.W_OK ) :
-			self._parent_win.showErrorDialog ( u"Invalid output directory." )
-			return
-
-		try :
-			detector = gpib_detect.GPIBDetector ( serialenable )
-			if envsensorsenable:
-				devname_ardenv = detector.get_resname_for ( u"Arduino Probestation Enviroment Sensoring" )
-				if devname_ardenv is None:
-					self._parent_win.showErrorDialog ( u"Could not find an Arduino for enviroment sensoring" )
-					return
-			else:
-				devname_ardenv = None
-			kei6517b_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 6517B" )
-			kei2410_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 2410" )
-			if kei6517b_devname is None :
-				hvdev_devname = kei2410_devname
-				logger.debug ( u"  Couldn't find Keithley 6517B, trying Keithley 2410 for HV." )
-			if kei2410_devname is None :
-				hvdev_devname = kei6517b_devname
-				logger.debug ( u"  Couldn't find Keithley 2410, trying Keithley 6517B for HV." )
-			if ( kei6517b_devname is not None and kei2410_devname is not None) :
-				self._parent_win.showErrorDialog ( u"I found both Keithley 6517B and Keithley 2410!<br><br>I don't know which to use!" )
-				return
-			if ( kei6517b_devname is None and kei2410_devname is None ) :
-				self._parent_win.showErrorDialog ( u"Could not find Keithley 6517B or Keithley 2410." )
-				return
+		
+		try:
 			agie4980a_devname = detector.get_resname_for ( u"Agilent Technologies,E4980A" )
 			if agie4980a_devname is None :
-				self._parent_win.showErrorDialog ( u"Could not find Agilent E4980A." )
+				raise MeasurementSetttingsError ( u"Could not find Agilent E4980A." )
 				return
-		except VisaIOError :
-			self._parent_win.showErrorDialog ( u"Could not connect to GPIB/serial devices." )
-			return
+		except VisaIOError:
+			raise MeasurementSetttingsError ( u"Could not connect to GPIB/serial devices." )
 
-		# CV box adds 1KOhm -> compcurrent goes down...
-		args = MeasurementArgs ( u"Strip",
-								 serialenable,
-								 devname_ardenv,
-								 hvdev_devname,
-								 None,
-								 agie4980a_devname,
-								 start,
-								 end,
-								 step,
-								 compcurrent * 1000.0,
-								 None,
-								 resistance,
-								 freq,
-								 volt,
-								 sleeptime,
-								 output_dir )
-		self._parent_win.startMeasurement ( args )
+		args["type"] = u"Strip"
+		args["compcurrent"] *= 1000.0 # CV box adds 1KOhm -> compcurrent goes down...
+		args["frequency"] = freq
+		args["deltavolt"] = volt
+		args["resistance"] = resistance
+		args["devname_agiE4980A"] = agie4980a_devname
+		
+		return MeasurementArgs ( **args )
+
+	def _onStartClicked ( self ) :
+		super( StripTab, self ) ._onStartClicked ( u"Is the CV/IV box set to both IV and C<sub>int</sub>/R<sub>int</sub>?" )
 
 class MainWindow ( QtW.QMainWindow ) :
 	def __init__ ( self, output_dir ) :
