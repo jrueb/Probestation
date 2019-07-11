@@ -3,6 +3,7 @@
 
 from visa_probestation_dev import VisaProbestationDev
 from math import log
+import logging
 
 class ArduinoEnvSensor ( VisaProbestationDev ) :
 	def __init__ ( self, resource_name ) :
@@ -15,13 +16,17 @@ class ArduinoEnvSensor ( VisaProbestationDev ) :
 		
 	def get_reading ( self, sensor = None ) :
 		if sensor is None:
-			return self._query ( "measureall" ) .strip ( )
+			ret = self._query ( "measureall" ) .strip ( )
 		elif sensor == 0x76:
-			return self._query ( "measure76" ) .strip ( )
+			ret = self._query ( "measure76" ) .strip ( )
 		elif sensor == 0x77:
-			return self._query ( "measure77" ) .strip ( )
+			ret = self._query ( "measure77" ) .strip ( )
 		else:
 			raise ValueError ( "sensor must be either None, 0x76 or 0x77." )
+		if ret.startswith("Error:"):
+			raise RuntimeError("Arduino responded {}".format(ret))
+			
+		return ret
 			
 	@staticmethod
 	def parse_tphr ( line, devname ) :
@@ -55,3 +60,7 @@ class ArduinoEnvSensor ( VisaProbestationDev ) :
 		
 		logphi = log(rh) - log(100)
 		return c * ((b * t) / (c + t) + logphi) / ((b * c) / (c + t) - logphi)
+
+if __name__ == "__main__":
+	dev = ArduinoEnvSensor("ASRLCOM10::INSTR")
+	print(dev.get_reading())

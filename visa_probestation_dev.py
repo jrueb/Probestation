@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import visa
+import logging
 
 class VisaProbestationDev ( object ) :
 	def __init__ ( self, resource_name, useserial, baud_rate = 19200, data_bits = 8 ) :

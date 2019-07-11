@@ -33,11 +33,11 @@ class MeasurementThread ( QtCore.QThread ) :
 		self.wait ( )
 		
 	def _init_envsensor ( self ):
-		self._envsensor = arduinoenv ( self.args.devname_ardenv )
+		self._envsensor = arduinoenv.ArduinoEnvSensor ( self.args.devname_ardenv )
 		idn = self._envsensor.identify ( )
 		if not idn.startswith ( u"Arduino Probestation Enviroment Sensoring" ) :
 			return False
-		logger.info ( u"  Envirovment sensor device introduced itself as {}" .format ( keith_hv.identify ( ) ) )
+		#logger.info ( u"  Envirovment sensor device introduced itself as {}" .format ( keith_hv.identify ( ) ) )
 		
 		return True
 		
@@ -49,6 +49,7 @@ class MeasurementThread ( QtCore.QThread ) :
 		
 		reading = self._envsensor.parse_tphr(read1, "envsensor1")
 		reading.update(self._envsensor.parse_tphr(read2, "envsensor2"))
+		print(reading)
 		
 		dewpoints = {
 			"envsensor1_dewpoint": self._envsensor.get_dewpoint(reading["envsensor1_temperature", "envsensor1_humidity"]),
@@ -92,7 +93,6 @@ class MeasurementWindow ( QtW.QWidget ) :
 		layout.addWidget ( self._env_label )
 		if args.devname_ardenv is None:
 			self._env_label.hide ( )
-		self._thread.envmeasurement_ready.connect ( self._on_env_measured )
 
 		hbox = QtW.QHBoxLayout ( )
 		layout.addLayout ( hbox )
@@ -118,6 +118,7 @@ class MeasurementWindow ( QtW.QWidget ) :
 		self._thread.error_signal.connect ( self.showErrorDialog )
 		self._thread.measurement_ready.connect ( self.add_point )
 		self._thread.finished.connect ( self._measurementFinished )
+		self._thread.envmeasurement_ready.connect ( self._on_env_measured )
 
 		self._figure.subplots_adjust ( left = 0.15, right = 0.99, top = 0.95, hspace = 0.4 )
 

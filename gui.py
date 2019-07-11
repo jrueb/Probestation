@@ -150,8 +150,8 @@ class DirectoryLayout ( QtW.QHBoxLayout ):
 		return self._edit.text ( )
 
 MeasurementArgs = namedtuple ( u"MeasurementArgs", [u"type",
-													u"useserial",
-													u"devname_ardenv"
+													u"serialenable",
+													u"devname_ardenv",
 													u"devname_hv",
 													u"devname_kei6485",
 													u"devname_agiE4980A",
@@ -257,10 +257,10 @@ class MeasurementTab ( QtW.QWidget ) :
 			raise MeasurementSetttingsError ( u"Could not connect to GPIB/serial devices." )
 				
 		args = MeasurementArgs ( None, # type
-								 serialenable, # useserial
+								 serialenable, # serialenable
 								 devname_ardenv, # devname_ardenv
-								 None, # devname_hv
-								 None, # devname_kei6485
+								 hvdev_devname, # devname_hv
+								 kei6485_devname, # devname_kei6485
 								 None, # devname_agiE4980A
 								 start, # start
 								 end, # end
@@ -306,11 +306,12 @@ class IvTab ( MeasurementTab ) :
 		
 		guardring = self._guard.getStatus ( )
 		
+		kei6485_devname = None
 		try:
 			if guardring :
 				kei6485_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 6485" )
 				if kei6485_devname is None :
-					self._parent_win.showErrorDialog ( u"Could not find Keithley 6485." )
+					raise MeasurementSetttingsError ( u"Could not find Keithley 6485." )
 					return
 		except VisaIOError:
 			raise MeasurementSetttingsError ( u"Could not connect to GPIB/serial devices." )
@@ -344,6 +345,7 @@ class CvTab ( MeasurementTab ) :
 			raise MeasurementSetttingsError ( u"AC voltage must be between 0 V and 20 V." )
 			return
 		
+		agie4980a_devname = None
 		try:
 			agie4980a_devname = detector.get_resname_for ( u"Agilent Technologies,E4980A" )
 			if agie4980a_devname is None :
@@ -390,6 +392,7 @@ class StripTab ( MeasurementTab ) :
 		else :
 			resistance = False
 		
+		agie4980a_devname = None
 		try:
 			agie4980a_devname = detector.get_resname_for ( u"Agilent Technologies,E4980A" )
 			if agie4980a_devname is None :
