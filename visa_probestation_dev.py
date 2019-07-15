@@ -5,7 +5,7 @@ import logging
 
 class VisaProbestationDev ( object ) :
 	def __init__ ( self, resource_name, useserial, baud_rate = 19200, data_bits = 8 ) :
-		logger = logging.getLogger ( u'myLogger' )
+		logger = logging.getLogger ( u'probestation.visa_probestation_dev.VisaProbestationDev' )
 		try :
 			rm1 = visa.ResourceManager ( )
 			resources = rm1.list_resources ( )

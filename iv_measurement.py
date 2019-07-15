@@ -38,7 +38,7 @@ class IvMeasurementThread ( MeasurementThread ) :
 
 		fname = getDateTimeFilename ( )
 		output_csv = os.path.join ( str ( args.output_dir ), fname + u".csv" )
-		logger = logging.getLogger ( u'myLogger' )
+		logger = logging.getLogger ( u'probestation.iv_measurement.IvMeasurementThread' )
 		logger.debug ( u" In iv_measurement.py:" )
 
 		try :

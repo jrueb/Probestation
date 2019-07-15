@@ -54,10 +54,10 @@ class MeasurementThread ( QtCore.QThread ) :
 		
 		dewpoints = {
 			"envsensor1_dewpoint": self._envsensor.get_dewpoint(
-					reading["envsensor1_temperature",
+					reading["envsensor1_temperature"],
 					reading["envsensor1_humidity"]),
 			"envsensor2_dewpoint": self._envsensor.get_dewpoint(
-					reading["envsensor2_temperature",
+					reading["envsensor2_temperature"],
 					reading["envsensor2_humidity"])
 		}
 		reading.update(dewpoints)

@@ -8,7 +8,7 @@ from sys import platform
 
 class GPIBDetector ( object ) :
 	def __init__ ( self , useserial ) :
-		logger = logging.getLogger ( u'myLogger' )
+		logger = logging.getLogger ( u'probestation.gpib_detect.GPIBDetector' )
 		resources = [""] * 1
 		try :
 			self._rm1 = visa.ResourceManager ( )

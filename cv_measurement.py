@@ -39,8 +39,7 @@ class CvMeasurementThread ( MeasurementThread ) :
 
 		fname = getDateTimeFilename ( )
 		output_csv = os.path.join ( str ( args.output_dir ), fname + u".csv" )
-		logger = logging.getLogger ( u'myLogger' )
-		logger.debug ( u" In cv_measurement.py:" )
+		logger = logging.getLogger ( u'probestation.cv_measurement.CvMeasurementThread' )
 
 		try :
 			if args.devname_ardenv:

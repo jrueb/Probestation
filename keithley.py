@@ -73,7 +73,7 @@ class Keithley6517B ( KeithleyMeter ) :
 		return self._query_ascii_values ( ":SOURCE:VOLTAGE?" ) [0]
 
 	def set_source_voltage ( self, volts ) :
-		logger = logging.getLogger ( u'myLogger' )
+		logger = logging.getLogger ( u'probestation.keithley.Keithley6517B' )
 		if not -1000 <= volts <= 1000 :
 			raise ValueError ( "Voltage level out of range [-1000;1000]: {}" .format ( volts ) )
 
@@ -181,7 +181,7 @@ class Keithley2410 ( KeithleyMeter ) :
 		return self._query_ascii_values ( ":SOURCE:VOLTAGE?" ) [0]
 
 	def set_source_voltage ( self, volts ) :
-		logger = logging.getLogger ( u'myLogger' )
+		logger = logging.getLogger ( u'probestation.keithley.Keithley2410' )
 		if not -1000 <= volts <= 1000 :
 			raise ValueError ( "Voltage level out of range [-1000;1000]: {}" .format ( volts ) )
 

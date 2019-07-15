@@ -40,7 +40,7 @@ class StripMeasurementThread ( MeasurementThread ) :
 
 		fname = getDateTimeFilename ( )
 		output_csv = os.path.join ( str ( args.output_dir ), fname + u".csv" )
-		logger = logging.getLogger ( u'myLogger' )
+		logger = logging.getLogger ( u'probestation.strip_measurement.StripMeasurementThread' )
 		logger.debug ( u" In strip_measurement.py:" )
 
 		try :

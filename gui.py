@@ -467,7 +467,7 @@ if __name__ == u"__main__" :
 	parser = optparse.OptionParser ( usage = usage, description = description )
 	parser.add_option ( u"-d", u"--debug", action = u"store_true", dest = u"debug", help = u"debug flag, enables more verbose console output" )
 	options, args = parser.parse_args ( )
-	logger = logging.getLogger ( u'myLogger' )
+	logger = logging.getLogger ( u'probestation' )
 	ch = logging.StreamHandler ( )
 	logger.addHandler ( ch )
 	logger.setLevel ( logging.INFO )
