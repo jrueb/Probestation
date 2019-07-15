@@ -38,10 +38,17 @@ class GeneralOptionsWidget ( QtW.QGroupBox ) :
 		self.setLayout ( form )
 
 		self._serialenable_cb = QtW.QCheckBox ( )
+		self._serialenable_cb.setChecked ( True )
+		self._serialenable_cb.toggled.connect ( self._onSerialEnableToggled )
 		form.addRow ( u"Enable serial device connection", self._serialenable_cb )
 		
 		self._envsensorsenable_cb = QtW.QCheckBox ( )
-		form.addRow ( u"Enable enviroment sensors", self._envsensorsenable_cb )
+		form.addRow ( u"  Enable enviroment sensors", self._envsensorsenable_cb )
+		
+	def _onSerialEnableToggled ( self, checked ):
+		self._envsensorsenable_cb.setDisabled ( not checked )
+		if not checked:
+			self._envsensorsenable_cb.setChecked ( False )
 
 	def getStatus ( self ) :
 		enableserial = self._serialenable_cb.isChecked ( )
