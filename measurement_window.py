@@ -33,13 +33,15 @@ class MeasurementThread ( QtCore.QThread ) :
 	def quit_and_wait ( self ) :
 		self._exiting = True
 		self.wait ( )
+		if self._envsensor:
+			self._envsensor.close ( )
 		
 	def _init_envsensor ( self ):
 		self._envsensor = arduinoenv.ArduinoEnvSensor ( self.args.devname_ardenv )
 		idn = self._envsensor.identify ( )
 		if not idn.startswith ( u"Arduino Probestation Enviroment Sensoring" ) :
 			return False
-		self._logger.info ( u"  Envirovment sensor device introduced itself as {}" .format ( keith_hv.identify ( ) ) )
+		self._logger.info ( u"  Envirovment sensor device introduced itself as {}" .format ( self._envsensor.identify ( ) ) )
 		
 		return True
 		
@@ -52,15 +54,16 @@ class MeasurementThread ( QtCore.QThread ) :
 		reading = self._envsensor.parse_tphr(read1, "envsensor1")
 		reading.update(self._envsensor.parse_tphr(read2, "envsensor2"))
 		
-		dewpoints = {
-			"envsensor1_dewpoint": self._envsensor.get_dewpoint(
-					reading["envsensor1_temperature"],
-					reading["envsensor1_humidity"]),
-			"envsensor2_dewpoint": self._envsensor.get_dewpoint(
-					reading["envsensor2_temperature"],
-					reading["envsensor2_humidity"])
-		}
-		reading.update(dewpoints)
+		reading["envsensor1_dewpoint"] = None
+		reading["envsensor2_dewpoint"] = None
+		if None not in [reading["envsensor1_temperature"], reading["envsensor1_humidity"]] :
+			reading["envsensor1_dewpoint"] = self._envsensor.get_dewpoint (
+						reading["envsensor1_temperature"],
+						reading["envsensor1_humidity"] )
+		if None not in [reading["envsensor2_temperature"], reading["envsensor2_humidity"]] :
+			reading["envsensor2_dewpoint"] = self._envsensor.get_dewpoint (
+						reading["envsensor2_temperature"],
+						reading["envsensor2_humidity"] )
 		
 		self.envmeasurement_ready.emit ( ( reading["envsensor1_temperature"],
 										   reading["envsensor1_dewpoint"],
@@ -126,6 +129,8 @@ class MeasurementWindow ( QtW.QWidget ) :
 		self._thread.envmeasurement_ready.connect ( self._on_env_measured )
 
 		self._figure.subplots_adjust ( left = 0.15, right = 0.99, top = 0.95, hspace = 0.4 )
+		
+		self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
 		self.update ( )
 
@@ -139,7 +144,7 @@ class MeasurementWindow ( QtW.QWidget ) :
 		self._thread.quit_and_wait ( )
 		
 	def _on_env_measured ( self, measurement ):
-		self._env_label.set_text ( "T1 = {:.1f} °C, Dewpoint1 = {:.1f} °C, T2 = {:.1f} °C, Dewpoint2 = {:.1f} °C".format(*measurement) )
+		self._env_label.setText ( "T1 = {:.1f} °C, Dewpoint1 = {:.1f} °C, T2 = {:.1f} °C, Dewpoint2 = {:.1f} °C".format(*measurement) )
 
 	def add_point ( self, point ) :
 		self._x.append ( point[0] )
@@ -170,7 +175,7 @@ class MeasurementWindow ( QtW.QWidget ) :
 		self._figure.savefig ( fname )
 
 	def isRunning ( self ) :
-		return self._thread.isRunning ( )
+		return self._thread and self._thread.isRunning ( )
 
 	def _measurementFinished ( self, name ) :
 		try :
@@ -190,6 +195,7 @@ class MeasurementWindow ( QtW.QWidget ) :
 	def closeEvent ( self, event ) :
 		if self._thread.isRunning ( ) :
 			self._thread.quit_and_wait ( )
+		self._thread = None # Delete thread to free devices
 		event.accept ( )
 
 	def showErrorDialog ( self, message ) :

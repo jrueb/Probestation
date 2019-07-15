@@ -39,3 +39,6 @@ class VisaProbestationDev ( object ) :
         
 	def _read ( self ) :
 		return self._res.read ( )
+
+	def close ( self ) :
+		self._res.close()

@@ -48,7 +48,6 @@ class IvMeasurementThread ( MeasurementThread ) :
 					self.error_signal.emit ( errormsg )
 					logger.error ( errormsg )
 					self.finished.emit ( os.path.join ( str ( args.output_dir ), fname ) )
-				logger.info ( u"  Envirovment sensor device introduced itself as {}" .format ( self._envsensor.identify ( ) ) )
 			
 			input_hv = keithley.KeithleyMeter ( args.devname_hv, args.serialenable )
 			if input_hv.identify ( ) .startswith ( u"KEITHLEY INSTRUMENTS INC.,MODEL 6517B" ) :
@@ -156,4 +155,3 @@ class IvMeasurementWindow ( MeasurementWindow ) :
 
 		self._ylabel = [u"Pad current in A", u"GR current in A"]
 		self.setWindowTitle ( u"IV measurement" )
-		logger = logging.getLogger ( u'myLogger' )

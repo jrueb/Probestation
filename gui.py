@@ -43,6 +43,7 @@ class GeneralOptionsWidget ( QtW.QGroupBox ) :
 		form.addRow ( u"Enable serial device connection", self._serialenable_cb )
 		
 		self._envsensorsenable_cb = QtW.QCheckBox ( )
+		self._envsensorsenable_cb.setChecked ( True )
 		form.addRow ( u"  Enable enviroment sensors", self._envsensorsenable_cb )
 		
 	def _onSerialEnableToggled ( self, checked ):
@@ -287,10 +288,9 @@ class MeasurementTab ( QtW.QWidget ) :
 			self._parent_win.showErrorDialog ( u"Measurement is currently running." )
 			return
 
-		if not options.debug and warning:
-			check = QtW.QMessageBox.question ( self, u"Warning", warning, QtW.QMessageBox.Yes, QtW.QMessageBox.No )
-			if check == QtW.QMessageBox.No :
-				return
+		check = QtW.QMessageBox.question ( self, u"Warning", warning, QtW.QMessageBox.Yes, QtW.QMessageBox.No )
+		if check == QtW.QMessageBox.No :
+			return
 				
 		try:
 			args = self._setupMeasurement ( )
@@ -319,7 +319,6 @@ class IvTab ( MeasurementTab ) :
 				kei6485_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 6485" )
 				if kei6485_devname is None :
 					raise MeasurementSetttingsError ( u"Could not find Keithley 6485." )
-					return
 		except VisaIOError:
 			raise MeasurementSetttingsError ( u"Could not connect to GPIB/serial devices." )
 
@@ -347,17 +346,14 @@ class CvTab ( MeasurementTab ) :
 		freq, volt = self._freqsettings.getSettings ( )
 		if not 20 <= freq <= 2e6 :
 			raise MeasurementSetttingsError ( u"Frequency must be between 20 Hz and 2 MHz." )
-			return
 		if not 0 <= volt <= 20 :
 			raise MeasurementSetttingsError ( u"AC voltage must be between 0 V and 20 V." )
-			return
 		
 		agie4980a_devname = None
 		try:
 			agie4980a_devname = detector.get_resname_for ( u"Agilent Technologies,E4980A" )
 			if agie4980a_devname is None :
 				raise MeasurementSetttingsError ( u"Could not find Agilent E4980A." )
-				return
 		except VisaIOError:
 			raise MeasurementSetttingsError ( u"Could not connect to GPIB/serial devices." )
 
@@ -389,10 +385,8 @@ class StripTab ( MeasurementTab ) :
 		freq, volt = self._freqsettings.getSettings ( )
 		if not 20 <= freq <= 2e6 :
 			raise MeasurementSetttingsError ( u"Frequency must be between 20 Hz and 2 MHz." )
-			return
 		if not 0 <= volt <= 20 :
 			raise MeasurementSetttingsError ( u"AC voltage must be between 0 V and 20 V." )
-			return
 		
 		if ( self._stripsettings.getSettings ( ) == u"Resistance/Impedance" ) :
 			resistance = True
@@ -404,7 +398,6 @@ class StripTab ( MeasurementTab ) :
 			agie4980a_devname = detector.get_resname_for ( u"Agilent Technologies,E4980A" )
 			if agie4980a_devname is None :
 				raise MeasurementSetttingsError ( u"Could not find Agilent E4980A." )
-				return
 		except VisaIOError:
 			raise MeasurementSetttingsError ( u"Could not connect to GPIB/serial devices." )
 
