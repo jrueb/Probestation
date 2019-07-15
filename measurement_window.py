@@ -12,6 +12,7 @@ except ImportError as e :
 
 from matplotlib.figure import Figure
 import numpy as np
+import logging
 import arduinoenv
 
 class MeasurementThread ( QtCore.QThread ) :
@@ -24,6 +25,7 @@ class MeasurementThread ( QtCore.QThread ) :
 		super ( MeasurementThread, self ) .__init__ ( )
 		self.args = args
 		self._exiting = False
+		self._logger = logging.getLogger("probestation.measurement_window.MeasurementThread")
 
 	def __del__ ( self ) :
 		self.quit_and_wait ( )
@@ -37,7 +39,7 @@ class MeasurementThread ( QtCore.QThread ) :
 		idn = self._envsensor.identify ( )
 		if not idn.startswith ( u"Arduino Probestation Enviroment Sensoring" ) :
 			return False
-		#logger.info ( u"  Envirovment sensor device introduced itself as {}" .format ( keith_hv.identify ( ) ) )
+		self._logger.info ( u"  Envirovment sensor device introduced itself as {}" .format ( keith_hv.identify ( ) ) )
 		
 		return True
 		
@@ -49,11 +51,14 @@ class MeasurementThread ( QtCore.QThread ) :
 		
 		reading = self._envsensor.parse_tphr(read1, "envsensor1")
 		reading.update(self._envsensor.parse_tphr(read2, "envsensor2"))
-		print(reading)
 		
 		dewpoints = {
-			"envsensor1_dewpoint": self._envsensor.get_dewpoint(reading["envsensor1_temperature", "envsensor1_humidity"]),
-			"envsensor2_dewpoint": self._envsensor.get_dewpoint(reading["envsensor2_temperature", "envsensor2_humidity"])
+			"envsensor1_dewpoint": self._envsensor.get_dewpoint(
+					reading["envsensor1_temperature",
+					reading["envsensor1_humidity"]),
+			"envsensor2_dewpoint": self._envsensor.get_dewpoint(
+					reading["envsensor2_temperature",
+					reading["envsensor2_humidity"])
 		}
 		reading.update(dewpoints)
 		

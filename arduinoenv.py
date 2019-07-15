@@ -30,9 +30,9 @@ class ArduinoEnvSensor ( VisaProbestationDev ) :
 			
 	@staticmethod
 	def parse_tphr ( line, devname ) :
+		temperature = pressure = humidity = resistance = None
 		for field in line.split ( "," ) :
 			field = field.strip ( )
-			temperature = pressure = humidity = resistance = None
 			
 			if field[-2:] == "°C":
 				temperature = float ( field[:-2] )
