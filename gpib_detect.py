@@ -9,9 +9,9 @@ from multiprocessing.pool import ThreadPool
 class GPIBDetector ( object ) :				
 	def __init__ ( self, useserial ) :
 		self.logger = logging.getLogger ( u'probestation.gpib_detect.GPIBDetector' )
-		self.pool = ThreadPool(processes=10)
+		self.pool = ThreadPool ( processes=10 )
 		self.useserial = useserial
-		self.identifiers = {}
+		self.identifiers = { }
 
 		try :
 			rm = visa.ResourceManager ( )
@@ -44,15 +44,15 @@ class GPIBDetector ( object ) :
 			try :
 				res, idn = pool_result.get ( )
 			except pyvisa.errors.Error :
-				if isserial:
+				if isserial :
 					logger.debug ( u"Could not open serial connection to %s", res )
-				else:
+				else :
 					logger.debug ( u"Could not open GPIB connection to %s", res )
 			else:
 				if idn:
 					self.identifiers[res] = idn
 		
-	def _obtain_idn(self, rm, res, isserial) :
+	def _obtain_idn ( self, rm, res, isserial ) :
 		if isserial :
 			self.logger.debug ( u"Opening serial connection to %s", res )
 			# 5000 msecs needed to catch slow devices...
@@ -61,9 +61,9 @@ class GPIBDetector ( object ) :
 			self.logger.debug ( u"Opening GPIB connection to %s", res )
 			dev = rm.open_resource ( res )
 		idn = dev.query ( u"*IDN?" )
-		if idn:
+		if idn :
 			self.logger.debug ( u"Got device identification: %s", idn )
-		else:
+		else :
 			self.logger.debug ( u"Got no device identification" )
 		dev.close ( )
 		return res, idn
@@ -79,7 +79,7 @@ if __name__ == u"__main__" :
 	import pprint
 	import sys
 
-	logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+	logging.basicConfig ( stream=sys.stdout, level=logging.DEBUG )
 	detector = GPIBDetector ( True )
 
 	pprint.pprint ( detector.identifiers )
