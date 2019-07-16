@@ -29,6 +29,37 @@ def createSpin ( lower, upper, step, value, decimals, suffix, tooltip = u"" ) :
 	if tooltip :
 		spin.setToolTip ( tooltip )
 	return spin
+	
+def run_async ( func, callback = None, error_callback = None, *args, **kwargs ):
+	# QRunnable does not inherit QObject, but signals need QObject,
+	# thus we need an extra class.
+	class WorkerSignals ( QtCore.QObject ) :
+		finished = QtCore.pyqtSignal ( object )
+		error = QtCore.pyqtSignal ( Exception )
+	
+	class Worker ( QtCore.QRunnable ) :
+		def __init__ ( self, func, *args, **kwargs ) :
+			super ( Worker, self ) .__init__ ( )
+			self.func = func
+			self.args = args
+			self.kwargs = kwargs
+			self.signals = WorkerSignals ( )
+			
+		@QtCore.pyqtSlot()
+		def run ( self ) :
+			try :
+				result = self.func ( *self.args, **self.kwargs )
+			except Exception as e :
+				self.signals.error.emit ( e )
+			else:
+				self.signals.finished.emit ( result )
+
+	worker = Worker ( func, *args, **kwargs )
+	if callback :
+		worker.signals.finished.connect ( callback )
+	if error_callback :
+		worker.signals.error.connect ( error_callback )
+	QtCore.QThreadPool.globalInstance ( ) .start ( worker )
 
 class GeneralOptionsWidget ( QtW.QGroupBox ) :
 	def __init__ ( self ) :
@@ -201,6 +232,10 @@ class MeasurementTab ( QtW.QWidget ) :
 		self._bottombox.addLayout ( self._browse_layout )
 		
 		hbox = QtW.QHBoxLayout ( )
+		self._loadingindicator = QtW.QProgressBar ( )
+		self._loadingindicator.setRange ( 0, 0 )
+		hbox.addWidget ( self._loadingindicator )
+		self._loadingindicator.hide ( )
 		hbox.addStretch ( 1 )
 		self._bottombox.addLayout ( hbox )
 		self._start_button = QtW.QPushButton ( u"Start" )
@@ -292,13 +327,19 @@ class MeasurementTab ( QtW.QWidget ) :
 		if check == QtW.QMessageBox.No :
 			return
 				
-		try:
-			args = self._setupMeasurement ( )
-		except MeasurementSetttingsError as e:
-			self._parent_win.showErrorDialog ( str ( e ) )
-			return
+		run_async ( self._setupMeasurement, self._onSetupFinished, self._onSetupError )
+		self._parent_win.setEnabled ( False )
+		self._loadingindicator.show ( )
 		
+	def _onSetupFinished ( self, args ) :
+		self._loadingindicator.hide ( )
 		self._parent_win.startMeasurement ( args )
+		self._parent_win.setEnabled ( True )
+		
+	def _onSetupError ( self, e ) :
+		self._loadingindicator.hide ( )
+		self._parent_win.showErrorDialog ( str ( e ) )
+		self._parent_win.setEnabled ( True )
 
 class IvTab ( MeasurementTab ) :
 	def __init__ ( self, parent_win, output_dir ) :
