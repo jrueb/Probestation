@@ -75,7 +75,7 @@ class GeneralOptionsWidget ( QtW.QGroupBox ) :
 		
 		self._envsensorsenable_cb = QtW.QCheckBox ( )
 		self._envsensorsenable_cb.setChecked ( True )
-		form.addRow ( u"  Enable enviroment sensors", self._envsensorsenable_cb )
+		form.addRow ( u"  Enable environment sensors", self._envsensorsenable_cb )
 		
 	def _onSerialEnableToggled ( self, checked ):
 		self._envsensorsenable_cb.setDisabled ( not checked )
@@ -278,9 +278,9 @@ class MeasurementTab ( QtW.QWidget ) :
 			self.detector = gpib_detect.GPIBDetector ( serialenable )
 			detector = self.detector
 			if envsensorsenable:
-				devname_ardenv = detector.get_resname_for ( u"Arduino Probestation Enviroment Sensoring" )
+				devname_ardenv = detector.get_resname_for ( u"Arduino Probestation Environment Sensoring" )
 				if devname_ardenv is None:
-					raise MeasurementSetttingsError ( u"Could not find an Arduino for enviroment sensoring" )
+					raise MeasurementSetttingsError ( u"Could not find an Arduino for environment sensoring" )
 			else:
 				devname_ardenv = None
 			kei6517b_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 6517B" )

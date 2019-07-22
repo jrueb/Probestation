@@ -44,7 +44,7 @@ class CvMeasurementThread ( MeasurementThread ) :
 		try :
 			if args.devname_ardenv:
 				if not self._init_envsensor ( ):
-					errormsg = u"Could not open envirovment sensor device."
+					errormsg = u"Could not open environment sensor device."
 					self.error_signal.emit ( errormsg )
 					logger.error ( errormsg )
 					self.finished.emit ( os.path.join ( str ( args.output_dir ), fname ) )
@@ -93,7 +93,7 @@ class CvMeasurementThread ( MeasurementThread ) :
 						break
 
 					if args.devname_ardenv:
-						env = self._measure_enviroment ( )
+						env = self._measure_environment ( )
 					line = agilentE4980A.get_reading ( )
 					meas = agilent.parse_cgv ( line, u"agie4980a" )
 					meas[u"keihv_srcvoltage"] = keivolt

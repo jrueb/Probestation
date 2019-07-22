@@ -46,7 +46,7 @@ class StripMeasurementThread ( MeasurementThread ) :
 		try :
 			if args.devname_ardenv:
 				if not self._init_envsensor ( ):
-					errormsg = u"Could not open envirovment sensor device."
+					errormsg = u"Could not open environment sensor device."
 					self.error_signal.emit ( errormsg )
 					logger.error ( errormsg )
 					self.finished.emit ( os.path.join ( str ( args.output_dir ), fname ) )
@@ -100,7 +100,7 @@ class StripMeasurementThread ( MeasurementThread ) :
 						break
 
 					if args.devname_ardenv:
-						env = self._measure_enviroment ( )
+						env = self._measure_environment ( )
 					if not args.resistance :
 						line = agilentE4980A.get_reading ( )
 						meas = agilent.parse_cgv ( line, "agie4980a" )

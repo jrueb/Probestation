@@ -39,13 +39,13 @@ class MeasurementThread ( QtCore.QThread ) :
 	def _init_envsensor ( self ):
 		self._envsensor = arduinoenv.ArduinoEnvSensor ( self.args.devname_ardenv )
 		idn = self._envsensor.identify ( )
-		if not idn.startswith ( u"Arduino Probestation Enviroment Sensoring" ) :
+		if not idn.startswith ( u"Arduino Probestation Environment Sensoring" ) :
 			return False
-		self._logger.info ( u"  Envirovment sensor device introduced itself as {}" .format ( self._envsensor.identify ( ) ) )
+		self._logger.info ( u"Environment sensor device introduced itself as {}" .format ( self._envsensor.identify ( ) ) )
 		
 		return True
 		
-	def _measure_enviroment ( self ):
+	def _measure_environment ( self ):
 		# Query both sensors
 		reading = self._envsensor.get_reading ( )
 		read1 = ",".join(reading.split(",")[:4])

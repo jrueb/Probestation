@@ -90,7 +90,7 @@ void execute(const char* cmd) {
   if (strcmp("*idn?\n", cmd_lower) == 0
       || strcmp("*idn?\r\n", cmd_lower) == 0) {
 
-    Serial.println("Arduino Probestation Enviroment Sensoring");
+    Serial.println("Arduino Probestation Environment Sensoring");
   } else if (strcmp("help\n", cmd_lower) == 0
       || strcmp("help\r\n", cmd_lower) == 0) {
 
