@@ -5,7 +5,7 @@ import logging
 import visa
 from visa_probestation_dev import VisaProbestationDev
 
-class AgilentMeter ( object ) :
+class AgilentMeter ( VisaProbestationDev ) :
 	def __init__ ( self, resource_name, useserial ) :
 		super ( AgilentMeter, self ) .__init__ ( resource_name, useserial )
 

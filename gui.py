@@ -275,7 +275,8 @@ class MeasurementTab ( QtW.QWidget ) :
 			raise MeasurementSetttingsError ( u"Invalid output directory." )
 			
 		try :
-			detector = gpib_detect.GPIBDetector ( serialenable )
+			self.detector = gpib_detect.GPIBDetector ( serialenable )
+			detector = self.detector
 			if envsensorsenable:
 				devname_ardenv = detector.get_resname_for ( u"Arduino Probestation Enviroment Sensoring" )
 				if devname_ardenv is None:
@@ -337,9 +338,12 @@ class MeasurementTab ( QtW.QWidget ) :
 		self._parent_win.setEnabled ( True )
 		
 	def _onSetupError ( self, e ) :
-		self._loadingindicator.hide ( )
-		self._parent_win.showErrorDialog ( str ( e ) )
-		self._parent_win.setEnabled ( True )
+		if isinstance ( e, MeasurementSetttingsError ) :
+			self._loadingindicator.hide ( )
+			self._parent_win.showErrorDialog ( str ( e ) )
+			self._parent_win.setEnabled ( True )
+		else :
+			raise e
 
 class IvTab ( MeasurementTab ) :
 	def __init__ ( self, parent_win, output_dir ) :
@@ -357,7 +361,7 @@ class IvTab ( MeasurementTab ) :
 		kei6485_devname = None
 		try:
 			if guardring :
-				kei6485_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 6485" )
+				kei6485_devname = self.detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 6485" )
 				if kei6485_devname is None :
 					raise MeasurementSetttingsError ( u"Could not find Keithley 6485." )
 		except VisaIOError:
@@ -392,7 +396,7 @@ class CvTab ( MeasurementTab ) :
 		
 		agie4980a_devname = None
 		try:
-			agie4980a_devname = detector.get_resname_for ( u"Agilent Technologies,E4980A" )
+			agie4980a_devname = self.detector.get_resname_for ( u"Agilent Technologies,E4980A" )
 			if agie4980a_devname is None :
 				raise MeasurementSetttingsError ( u"Could not find Agilent E4980A." )
 		except VisaIOError:
@@ -436,7 +440,7 @@ class StripTab ( MeasurementTab ) :
 		
 		agie4980a_devname = None
 		try:
-			agie4980a_devname = detector.get_resname_for ( u"Agilent Technologies,E4980A" )
+			agie4980a_devname = self.detector.get_resname_for ( u"Agilent Technologies,E4980A" )
 			if agie4980a_devname is None :
 				raise MeasurementSetttingsError ( u"Could not find Agilent E4980A." )
 		except VisaIOError:
