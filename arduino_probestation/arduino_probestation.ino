@@ -1,7 +1,9 @@
-#include <Adafruit_BME680.h>
+#include "Adafruit_BME680.h"
 
 // ms to wait between reading from serial
 #define WAITREAD 100
+
+const char* lasterr;
 
 Adafruit_BME680 sensor76;
 Adafruit_BME680 sensor77;
@@ -11,12 +13,8 @@ int pos = 0;
 char buf[BUFLEN];
 
 bool setupBME680(const Adafruit_BME680& sensor, uint8_t address) {
-	if (!sensor.begin(address)) {
-		Serial.print("Error: Could not connect to BME680 at address 0x");
-    Serial.print(address, HEX);
-    Serial.println(". Check your I2C wiring");
+	if (!sensor.begin(address))
 		return false;
-	}
   
   // Set up oversampling and filter initialization
   sensor.setTemperatureOversampling(BME680_OS_8X);
@@ -29,15 +27,16 @@ bool setupBME680(const Adafruit_BME680& sensor, uint8_t address) {
 }
 
 void setup() {
+  lasterr = "";
   Serial.begin(19200);
   while (!Serial); // Wait for serial to be ready
 
   Wire.begin();
   
   if (!setupBME680(sensor76, 0x76))
-    while(1);
+    lasterr = "Could not connect to BME680 at address 0x76. Check your I2C wiring";
   if (!setupBME680(sensor77, 0x77))
-    while(1);
+    lasterr = "Could not connect to BME680 at address 0x77. Check your I2C wiring";
 }
 
 bool measure(const Adafruit_BME680& sensor) {
@@ -91,10 +90,19 @@ void execute(const char* cmd) {
       || strcmp("*idn?\r\n", cmd_lower) == 0) {
 
     Serial.println("Arduino Probestation Environment Sensoring");
+  } else if (strcmp("error\n", cmd_lower) == 0
+      || strcmp("error\r\n", cmd_lower) == 0) {
+    
+    if (!*lasterr)
+      Serial.println("None");
+    else {
+      Serial.print("Error: ");
+      Serial.println(lasterr);
+    }
   } else if (strcmp("help\n", cmd_lower) == 0
       || strcmp("help\r\n", cmd_lower) == 0) {
 
-    Serial.println("Available commands: *idn? help format measureall measure76 measure77");
+    Serial.println("Available commands: *idn? error help format measureall measure76 measure77");
   } else if (strcmp("format\n", cmd_lower) == 0
       || strcmp("format\r\n", cmd_lower) == 0) {
 
