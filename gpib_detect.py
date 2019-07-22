@@ -3,6 +3,7 @@
 from __future__ import absolute_import
 import visa
 import pyvisa.errors
+from serial.serialutil import SerialException
 import logging
 from multiprocessing.pool import ThreadPool
 
@@ -43,11 +44,11 @@ class GPIBDetector ( object ) :
 		for pool_result in pool_results :
 			try :
 				res, idn = pool_result.get ( )
-			except pyvisa.errors.Error :
+			except ( pyvisa.errors.Error, SerialException ) :
 				if isserial :
-					logger.debug ( u"Could not open serial connection to %s", res )
+					self.logger.debug ( u"Could not open serial connection to %s", res )
 				else :
-					logger.debug ( u"Could not open GPIB connection to %s", res )
+					self.logger.debug ( u"Could not open GPIB connection to %s", res )
 			else:
 				if idn:
 					self.identifiers[res] = idn

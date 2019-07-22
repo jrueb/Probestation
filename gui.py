@@ -280,7 +280,7 @@ class MeasurementTab ( QtW.QWidget ) :
 			if envsensorsenable:
 				devname_ardenv = detector.get_resname_for ( u"Arduino Probestation Environment Sensoring" )
 				if devname_ardenv is None:
-					raise MeasurementSetttingsError ( u"Could not find an Arduino for environment sensoring" )
+					raise MeasurementSetttingsError ( u"Could not find an Arduino for environment sensoring.<br>Arduino might be in use by another process." )
 			else:
 				devname_ardenv = None
 			kei6517b_devname = detector.get_resname_for ( u"KEITHLEY INSTRUMENTS INC.,MODEL 6517B" )
