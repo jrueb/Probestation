@@ -11,6 +11,13 @@ class ArduinoEnvSensor ( VisaProbestationDev ) :
 		
 		self._res.encoding = "utf-8"
 		
+	def get_error ( self ) :
+		error = self._query ( "error" ) . strip ( )
+		if error == "None":
+			return None
+		else:
+			return error
+		
 	def identify ( self ) :
 		return self._query ( u"*IDN?" ) .strip ( )
 		
