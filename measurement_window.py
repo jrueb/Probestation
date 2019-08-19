@@ -26,6 +26,7 @@ class MeasurementThread ( QtCore.QThread ) :
 		self.args = args
 		self._exiting = False
 		self._logger = logging.getLogger("probestation.measurement_window.MeasurementThread")
+		self._envsensor = None
 
 	def __del__ ( self ) :
 		self.quit_and_wait ( )
