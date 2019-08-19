@@ -84,6 +84,8 @@ class CvMeasurementThread ( MeasurementThread ) :
 
 			with open ( output_csv, mode ) as f :
 				header = OrderedDict ( [ ( 'keihv_srcvoltage', None ), ( 'agie4980a_capacitance', None ), ('agie4980a_conductance', None ), ( 'keihv_current', None ) ] )
+				if args.devname_ardenv:
+					header.update ( { 'envsensor1_temperature': None, 'envsensor1_dewpoint': None, 'envsensor2_temperature': None, 'envsensor2_dewpoint': None } )
 				writer = csv.DictWriter ( f, fieldnames = header, extrasaction = u"ignore" )
 				writer.writeheader ( )
 
@@ -92,8 +94,6 @@ class CvMeasurementThread ( MeasurementThread ) :
 					if self._exiting :
 						break
 
-					if args.devname_ardenv:
-						env = self._measure_environment ( )
 					line = agilentE4980A.get_reading ( )
 					meas = agilent.parse_cgv ( line, u"agie4980a" )
 					meas[u"keihv_srcvoltage"] = keivolt
@@ -101,6 +101,9 @@ class CvMeasurementThread ( MeasurementThread ) :
 						raise IOError ( u"Got invalid reading from device" )
 					compline = keith_hv.get_reading ( )
 					meas.update ( keith_hv.parse_iv ( compline, u"keihv" ) )
+					if args.devname_ardenv:
+						env = self._measure_environment ( )
+						meas.update(env)
 
 					print ( u"VSrc = {: 10.4g} V; C = {: 10.4g} F; G = {: 10.4g} S; I = {: 10.4g} A" .format ( meas[u"keihv_srcvoltage"], meas[u"agie4980a_capacitance"], meas[u"agie4980a_conductance"], meas[u"keihv_current"] ) )
 

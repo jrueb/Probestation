@@ -88,6 +88,8 @@ class IvMeasurementThread ( MeasurementThread ) :
 					header = OrderedDict ( [ ( 'keihv_srcvoltage', None ), ( 'keihv_current', None ), ( 'kei6485_current', None ) ] )
 				else :
 					header = OrderedDict ( [ ( 'keihv_srcvoltage', None ), ( 'keihv_current', None ) ] )
+				if args.devname_ardenv:
+					header.update ( { 'envsensor1_temperature': None, 'envsensor1_dewpoint': None, 'envsensor2_temperature': None, 'envsensor2_dewpoint': None } )
 				writer = csv.DictWriter ( f, fieldnames = header, extrasaction = u"ignore" )
 				writer.writeheader ( )
 
@@ -95,11 +97,12 @@ class IvMeasurementThread ( MeasurementThread ) :
 					sleep ( args.sleep )
 					if self._exiting :
 						break
-
-					if args.devname_ardenv:
-						env = self._measure_environment ( )
+						
 					line = keith_hv.get_reading ( )
 					meas = keith_hv.parse_iv ( line, u"keihv" )
+					if args.devname_ardenv:
+						env = self._measure_environment ( )
+						meas.update(env)
 					if ( not u"keihv_srcvoltage" in meas or not u"keihv_current" in meas or meas[u"keihv_srcvoltage"] is None or meas[u"keihv_current"] is None ) :
 						raise IOError ( u"Got invalid response from Keithley 6517B" )
 					if self._exiting :

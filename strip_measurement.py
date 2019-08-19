@@ -91,6 +91,8 @@ class StripMeasurementThread ( MeasurementThread ) :
 					header = OrderedDict ( [ ( 'keihv_srcvoltage', None ), ( 'agie4980a_capacitance', None ), ( 'keihv_current', None ) ] )
 				else :
 					header = OrderedDict ( [ ( 'keihv_srcvoltage', None ), ( 'agie4980a_resistance', None ), ( 'agie4980a_impedance', None ), ( 'keihv_current', None ) ] )
+				if args.devname_ardenv:
+					header.update ( { 'envsensor1_temperature': None, 'envsensor1_dewpoint': None, 'envsensor2_temperature': None, 'envsensor2_dewpoint': None } )
 				writer = csv.DictWriter ( f, header, extrasaction = "ignore" )
 				writer.writeheader ( )
 
@@ -99,8 +101,6 @@ class StripMeasurementThread ( MeasurementThread ) :
 					if self._exiting :
 						break
 
-					if args.devname_ardenv:
-						env = self._measure_environment ( )
 					if not args.resistance :
 						line = agilentE4980A.get_reading ( )
 						meas = agilent.parse_cgv ( line, "agie4980a" )
@@ -129,6 +129,10 @@ class StripMeasurementThread ( MeasurementThread ) :
 						#Instant turn off
 						keith_hv.set_output_state ( False )
 						self._exiting = True
+						
+					if args.devname_ardenv:
+						env = self._measure_environment ( )
+						meas.update(env)
 
 					writer.writerow ( meas )
 					if not args.resistance :
